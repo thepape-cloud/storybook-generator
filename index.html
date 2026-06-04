@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>📚 Storybook Generator</title>
-<script src="https://js.puter.com/v2/"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
@@ -404,24 +403,20 @@ function setMode(m){
 
 // ── INIT ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
-  // Auto-login with temp user — no popup needed
-  const checkPuter = setInterval(async ()=>{
-    if(typeof puter !== 'undefined'){
+  // Wait for Puter.js to load - check every 500ms up to 15 seconds
+  let puterChecks = 0;
+  const checkPuter = setInterval(()=>{
+    puterChecks++;
+    const st = document.getElementById('puter-status');
+    if(typeof puter !== 'undefined' && puter.ai){
       clearInterval(checkPuter);
-      const st = document.getElementById('puter-status');
-      try{
-        if(!puter.auth.isSignedIn()){
-          await puter.auth.signIn({attempt_temp_user_creation: true});
-        }
-        if(st){ st.textContent='✅ Pronto'; st.style.color='var(--green)'; }
-        setTimeout(()=>{ if(st) st.style.display='none'; },3000);
-      }catch(e){
-        // Will sign in on first use automatically
-        if(st){ st.textContent='⚡ Pronto'; st.style.color='var(--gold)'; }
-        setTimeout(()=>{ if(st) st.style.display='none'; },3000);
-      }
+      if(st){ st.textContent='✅ Pronto'; st.style.color='var(--green)'; }
+      setTimeout(()=>{ if(st) st.style.display='none'; },2000);
+    } else if(puterChecks > 30){
+      clearInterval(checkPuter);
+      if(st){ st.textContent='⚠️ Ricarica la pagina'; st.style.color='#eb5757'; }
     }
-  },300);
+  },500);
   document.getElementById('tgrid').addEventListener('click',e=>{
     const b=e.target.closest('.tbtn'); if(!b) return;
     document.querySelectorAll('.tbtn').forEach(x=>x.classList.remove('active'));
@@ -477,8 +472,8 @@ async function generate(){
   const title=document.getElementById('book-title').value.trim()||'Il mio Storybook';
   if(!plot){showToast('Inserisci la trama!'); return;}
 
-  if(mode==='free' && typeof puter === 'undefined'){
-    showToast('Puter.js sta ancora caricando, riprova tra 2 secondi');
+  if(mode==='free' && (typeof puter === 'undefined' || !puter.ai)){
+    showToast('Puter.js sta caricando, riprova tra 2 secondi');
     isGen=false;
     document.getElementById('gen-btn').disabled=false;
     return;
@@ -844,5 +839,6 @@ function clearAll(){
   showProg(false);
 }
 </script>
+<script src="https://js.puter.com/v2/"></script>
 </body>
 </html>
