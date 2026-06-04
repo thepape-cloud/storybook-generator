@@ -6,7 +6,6 @@
 <title>📚 Storybook Generator</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -19,92 +18,91 @@
   --green:#4caf82;--amber:#e8a84c;
 }
 body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:15px;min-height:100vh;line-height:1.6}
-
-header{border-bottom:1px solid var(--border);padding:14px 26px;display:flex;align-items:center;gap:12px;background:var(--bg2);justify-content:space-between}
-.header-left{display:flex;align-items:center;gap:10px}
-header h1{font-family:var(--font-d);font-size:20px;color:var(--gold2);font-weight:400}
-.mode-toggle{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:8px;overflow:hidden}
-.mode-btn{padding:6px 14px;font-size:12px;font-family:var(--font-b);font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all .2s}
-.mode-btn.active{background:var(--gold);color:#0f0e0c}
-
-.app{display:flex;height:calc(100vh - 57px)}
-.sidebar{width:390px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:16px}
-.main{flex:1;overflow-y:auto;padding:26px;background:var(--bg)}
-
-label{display:block;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
-input[type=text],input[type=number],input[type=password],textarea,select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--font-b);font-size:14px;padding:9px 12px;outline:none;transition:border-color .2s}
+header{border-bottom:1px solid var(--border);padding:13px 24px;display:flex;align-items:center;gap:10px;background:var(--bg2)}
+header h1{font-family:var(--font-d);font-size:20px;color:var(--gold2);font-weight:400;flex:1}
+.app{display:flex;height:calc(100vh - 50px)}
+.sidebar{width:380px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px}
+.main{flex:1;overflow-y:auto;padding:24px;background:var(--bg)}
+label{display:block;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+input[type=text],input[type=password],textarea,select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--font-b);font-size:13px;padding:8px 11px;outline:none;transition:border-color .2s}
 input:focus,textarea:focus,select:focus{border-color:var(--gold)}
-textarea{resize:vertical;min-height:100px;line-height:1.6}
+textarea{resize:vertical;min-height:90px;line-height:1.6}
 select option{background:#1a1916}
 .field{display:flex;flex-direction:column}
-
-.sec{font-family:var(--font-d);font-size:13px;color:var(--gold);font-style:italic;border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:2px}
-
-/* FREE MODE BANNER */
-.free-banner{background:rgba(76,175,130,0.1);border:1px solid rgba(76,175,130,0.3);border-radius:var(--radius);padding:12px 14px;font-size:12px;color:var(--green);line-height:1.6}
-.free-banner strong{color:#6fcf97}
-.free-banner a{color:#6fcf97}
-
-/* PRO MODE */
-.pro-section{display:flex;flex-direction:column;gap:14px}
-.ptabs{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap}
-.ptab{flex:1;min-width:80px;padding:6px 4px;border:1.5px solid var(--border);border-radius:7px;background:var(--bg3);color:var(--muted);font-size:11px;font-family:var(--font-b);cursor:pointer;text-align:center;transition:all .2s;line-height:1.3}
-.ptab:hover{border-color:var(--gold);color:var(--text)}
-.ptab.active{border-color:var(--gold);background:rgba(201,168,76,0.1);color:var(--gold2)}
-.ppanel{display:none;flex-direction:column;gap:8px}
-.ppanel.show{display:flex}
+.sec{font-family:var(--font-d);font-size:12px;color:var(--gold);font-style:italic;border-bottom:1px solid var(--border);padding-bottom:5px}
 .badge{display:inline-block;font-size:10px;font-weight:500;padding:1px 6px;border-radius:99px}
 .bf{background:rgba(76,175,130,0.18);color:var(--green);border:1px solid rgba(76,175,130,0.3)}
 .bp{background:rgba(232,168,76,0.15);color:var(--amber);border:1px solid rgba(232,168,76,0.3)}
 .bfm{background:rgba(160,120,220,0.15);color:#c084fc;border:1px solid rgba(160,120,220,0.3)}
-.pinfo{font-size:11px;color:var(--muted);line-height:1.5}
-.pinfo a{color:var(--gold);text-decoration:none}
 
-/* themes */
-.theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
-.tbtn{background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 6px;cursor:pointer;text-align:center;color:var(--muted);font-size:11px;font-family:var(--font-b);transition:all .2s;line-height:1.3}
+/* KEY CARD */
+.key-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;gap:8px}
+.key-row{display:flex;align-items:center;gap:8px}
+.key-icon{font-size:18px;flex-shrink:0}
+.key-info{flex:1}
+.key-info .kname{font-size:13px;font-weight:500;color:var(--text)}
+.key-info .kdesc{font-size:11px;color:var(--muted);line-height:1.4}
+.key-link{display:inline-block;font-size:11px;color:var(--gold);text-decoration:none;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);border-radius:5px;padding:3px 8px;margin-top:3px;white-space:nowrap}
+.key-link:hover{background:rgba(201,168,76,0.2)}
+.key-status{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--muted)}
+.key-status.ok{background:var(--green)}
+.key-status.err{background:#eb5757}
+
+/* TABS */
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tab{flex:1;min-width:70px;padding:6px 4px;border:1.5px solid var(--border);border-radius:7px;background:var(--bg3);color:var(--muted);font-size:11px;font-family:var(--font-b);cursor:pointer;text-align:center;transition:all .2s;line-height:1.3}
+.tab:hover{border-color:var(--gold);color:var(--text)}
+.tab.active{border-color:var(--gold);background:rgba(201,168,76,0.1);color:var(--gold2)}
+.panel{display:none}.panel.show{display:flex;flex-direction:column;gap:6px}
+
+/* THEME */
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tbtn{background:var(--bg3);border:1.5px solid var(--border);border-radius:8px;padding:9px 5px;cursor:pointer;text-align:center;color:var(--muted);font-size:10px;font-family:var(--font-b);transition:all .2s;line-height:1.3}
 .tbtn:hover{border-color:var(--gold);color:var(--text)}
 .tbtn.active{border-color:var(--gold);background:rgba(201,168,76,0.1);color:var(--gold2)}
-.tbtn .em{font-size:17px;display:block;margin-bottom:3px}
+.tbtn .em{font-size:16px;display:block;margin-bottom:2px}
 
-.palette-row{display:flex;gap:7px;flex-wrap:wrap}
-.swatch{width:28px;height:28px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:transform .15s,border-color .15s;flex-shrink:0}
-.swatch:hover{transform:scale(1.12)}
-.swatch.active{border-color:white;transform:scale(1.12)}
+/* PALETTE */
+.palette{display:flex;gap:6px;flex-wrap:wrap}
+.sw{width:26px;height:26px;border-radius:5px;cursor:pointer;border:2px solid transparent;transition:transform .15s}
+.sw:hover{transform:scale(1.12)}
+.sw.active{border-color:white;transform:scale(1.12)}
 
-.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 16px;border-radius:var(--radius);font-family:var(--font-b);font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .2s}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;border-radius:var(--radius);font-family:var(--font-b);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .2s}
 .btn-p{background:var(--gold);color:#0f0e0c;width:100%}
 .btn-p:hover{background:var(--gold2)}
 .btn-p:disabled{opacity:.45;cursor:not-allowed}
 .btn-o{background:transparent;border:1px solid var(--border);color:var(--muted)}
 .btn-o:hover{border-color:var(--gold);color:var(--gold)}
-.btn-g{background:transparent;color:var(--muted);font-size:13px}
+.btn-g{background:transparent;color:var(--muted);font-size:12px}
 .btn-g:hover{color:var(--gold)}
 
-.prog-area{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:none;flex-direction:column;gap:9px}
-.prog-area.show{display:flex}
-.pbar-w{background:var(--bg);border-radius:99px;height:4px;overflow:hidden}
-.pbar{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:99px;width:0%;transition:width .4s ease}
-.plog{font-size:11px;color:var(--muted);max-height:100px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
-.le{padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
-.le.ok{color:#6fcf97}.le.err{color:#eb5757}
-
-#scenes-list{display:flex;flex-direction:column;gap:6px}
-.scene-row{display:flex;gap:9px;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:8px 11px}
-.snum{width:20px;height:20px;background:rgba(201,168,76,0.15);color:var(--gold);border-radius:50%;font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.scene-row input{background:transparent;border:none;border-radius:0;padding:0;font-size:13px;color:var(--text)}
+/* SCENES */
+#scenes-list{display:flex;flex-direction:column;gap:5px}
+.scene-row{display:flex;gap:8px;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 10px}
+.snum{width:19px;height:19px;background:rgba(201,168,76,0.15);color:var(--gold);border-radius:50%;font-size:9px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.scene-row input{background:transparent;border:none;border-radius:0;padding:0;font-size:12px;color:var(--text)}
 .scene-row input:focus{border:none}
-.del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px;line-height:1;flex-shrink:0}
+.del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;flex-shrink:0}
 .del:hover{color:#eb5757}
 
-.prev-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.prev-head h2{font-family:var(--font-d);font-size:20px;color:var(--gold2);font-weight:400}
-.pages-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+/* PROGRESS */
+.prog{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:none;flex-direction:column;gap:8px}
+.prog.show{display:flex}
+.pbar-w{background:var(--bg);border-radius:99px;height:3px;overflow:hidden}
+.pbar{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:99px;width:0%;transition:width .4s}
+.plog{font-size:11px;color:var(--muted);max-height:90px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.le{padding:1px 0}.le.ok{color:#6fcf97}.le.err{color:#eb5757}
 
-.pc{background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 6px 28px rgba(0,0,0,0.45);position:relative;aspect-ratio:210/297;display:flex;flex-direction:column;color:#1a1a1a;font-family:var(--font-b);cursor:pointer;transition:box-shadow .2s}
-.pc:hover{box-shadow:0 8px 36px rgba(201,168,76,0.25)}
+/* PAGE CARDS */
+.prev-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.prev-head h2{font-family:var(--font-d);font-size:19px;color:var(--gold2);font-weight:400}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.pc{background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 5px 24px rgba(0,0,0,0.45);position:relative;aspect-ratio:210/297;display:flex;flex-direction:column;color:#1a1a1a;font-family:var(--font-b);cursor:pointer;transition:box-shadow .2s}
+.pc:hover{box-shadow:0 8px 32px rgba(201,168,76,0.2)}
 .pc.theme-bimbi{background:#fffbf0}
 .pc.theme-cyberpunk{background:#0a0a1a;color:#e0e0ff;border:2px solid #00ffcc}
 .pc.theme-anime{background:#fff8fa}
@@ -115,134 +113,159 @@ select option{background:#1a1916}
 .pc.theme-natale{background:#f8f0f0;color:#2a0a0a}
 .pc.theme-oceano{background:#eaf6ff;color:#0a2030}
 .pc.theme-fiaba{background:#fdf5ff;color:#2a0a3a}
-.pnum{position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.2);color:rgba(255,255,255,0.7);font-size:8px;border-radius:3px;padding:2px 5px}
+.pnum{position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.2);color:rgba(255,255,255,0.7);font-size:8px;border-radius:3px;padding:2px 4px}
 .pimg{width:100%;overflow:hidden;flex-shrink:0;background:rgba(0,0,0,0.06);position:relative}
 .pimg img{width:100%;height:100%;object-fit:cover;display:block}
-.pimg-spin{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(0,0,0,0.05)}
-.ptxt{padding:8px 12px;flex:1;display:flex;flex-direction:column;justify-content:center}
-.pchap{font-size:8px;text-transform:uppercase;letter-spacing:.1em;opacity:.45;margin-bottom:3px}
-.pbody{font-size:10px;line-height:1.55}
-.pc.text-only .ptxt{justify-content:flex-start;padding:13px 15px}
-.pc.text-only .pbody{font-size:11px}
-.pc.is-cover{justify-content:center;align-items:center;text-align:center;padding:16px}
-.cover-t{font-family:var(--font-d);font-size:19px;font-weight:700;margin-bottom:6px;line-height:1.2}
-.cover-s{font-size:10px;opacity:.65}
+.pimg-spin{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;background:rgba(0,0,0,0.05)}
+.ptxt{padding:7px 11px;flex:1;display:flex;flex-direction:column;justify-content:center}
+.pchap{font-size:7px;text-transform:uppercase;letter-spacing:.1em;opacity:.4;margin-bottom:2px}
+.pbody{font-size:9px;line-height:1.55}
+.pc.text-only .ptxt{justify-content:flex-start;padding:12px 14px}
+.pc.text-only .pbody{font-size:10px}
+.pc.is-cover{justify-content:center;align-items:center;text-align:center;padding:14px}
+.cover-t{font-family:var(--font-d);font-size:17px;font-weight:700;margin-bottom:5px;line-height:1.2}
+.cover-s{font-size:9px;opacity:.65}
 
-.edit-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.75);z-index:10;flex-direction:column;gap:7px;padding:11px;justify-content:center}
-.edit-overlay.show{display:flex}
-.edit-overlay textarea,.edit-overlay input{width:100%;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.3);border-radius:6px;color:#fff;font-size:11px;padding:6px 8px;font-family:var(--font-b);line-height:1.5}
-.edit-overlay textarea{resize:none}
-.edit-btns{display:flex;gap:6px;justify-content:flex-end}
-.edit-btns button{padding:5px 11px;border-radius:5px;font-size:11px;cursor:pointer;border:none;font-family:var(--font-b)}
-.ebtn-ok{background:var(--gold);color:#000}
-.ebtn-cancel{background:rgba(255,255,255,0.15);color:#fff}
-.elbl{font-size:10px;color:rgba(255,255,255,0.55);margin-bottom:2px;text-transform:uppercase;letter-spacing:.06em}
+/* EDIT OVERLAY */
+.eo{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.78);z-index:10;flex-direction:column;gap:6px;padding:10px;justify-content:center}
+.eo.show{display:flex}
+.eo textarea,.eo input{width:100%;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:5px;color:#fff;font-size:10px;padding:6px;font-family:var(--font-b);line-height:1.5}
+.eo textarea{resize:none}
+.eo-btns{display:flex;gap:5px;justify-content:flex-end}
+.eo-btns button{padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer;border:none;font-family:var(--font-b)}
+.eok{background:var(--gold);color:#000}
+.ecancel{background:rgba(255,255,255,0.15);color:#fff}
+.elbl{font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:2px;text-transform:uppercase;letter-spacing:.06em}
 
-.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
-.empty-state .icon{font-size:46px;margin-bottom:13px}
-.empty-state p{font-size:14px;line-height:1.6;max-width:300px;margin:0 auto}
+.empty-state{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty-state .icon{font-size:42px;margin-bottom:12px}
+.empty-state p{font-size:13px;line-height:1.6;max-width:280px;margin:0 auto}
 
-::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
-
-input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(--bg);border-radius:99px;border:none;padding:0}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--gold);cursor:pointer;border:2px solid var(--bg2)}
-
-.toast{position:fixed;bottom:20px;right:20px;background:#eb5757;color:white;padding:10px 15px;border-radius:var(--radius);font-size:13px;max-width:300px;z-index:999;transform:translateY(100px);opacity:0;transition:all .3s}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:var(--bg);border-radius:99px;border:none;padding:0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--gold);cursor:pointer;border:2px solid var(--bg2)}
+.toast{position:fixed;bottom:18px;right:18px;background:#eb5757;color:white;padding:9px 14px;border-radius:var(--radius);font-size:12px;max-width:280px;z-index:999;transform:translateY(100px);opacity:0;transition:all .3s}
 .toast.show{transform:translateY(0);opacity:1}
 </style>
 </head>
 <body>
-
 <header>
-  <div class="header-left">
-    <span>📚</span>
-    <h1>Storybook Generator</h1>
-    <span id="puter-status" style="font-size:11px;color:var(--muted);margin-left:4px">⏳ caricamento...</span>
-  </div>
-  <div class="mode-toggle">
-    <button class="mode-btn active" id="btn-free" onclick="setMode('free')">✨ Free</button>
-    <button class="mode-btn" id="btn-pro" onclick="setMode('pro')">⚡ Pro (API Keys)</button>
-  </div>
+  <span>📚</span>
+  <h1>Storybook Generator</h1>
+  <span style="font-size:11px;color:var(--muted)">Clicca le pagine per modificarle</span>
 </header>
 
 <div class="app">
 <aside class="sidebar">
 
-  <!-- FREE / PRO SECTION -->
-  <div id="free-mode-section">
-    <div class="sec">🆓 Modalità gratuita</div>
-    <div class="free-banner" style="margin-top:10px">
-      <strong>Zero chiavi, zero costi!</strong><br>
-      Usa <strong>Puter.js</strong> — al primo utilizzo apre un popup per creare un account gratuito (30 secondi). Poi genera testo e immagini gratis per sempre.<br><br>
-      🖼 Immagini: <strong>GPT Image · DALL-E · Flux · Stable Diffusion</strong><br>
-      📝 Testo: <strong>GPT-4o · Claude · Gemini</strong>
+  <!-- TESTO -->
+  <div>
+    <div class="sec">✍️ Motore testo</div>
+    <div class="tabs" style="margin-top:8px" id="ttabs">
+      <button class="tab active" onclick="swT('groq',this)">Groq <span class="badge bf">Free</span></button>
+      <button class="tab" onclick="swT('gemini',this)">Gemini <span class="badge bf">Free</span></button>
+      <button class="tab" onclick="swT('claude',this)">Claude <span class="badge bp">Paid</span></button>
     </div>
-    <div class="two" style="margin-top:12px">
-      <div class="field">
-        <label>Modello testo</label>
-        <select id="puter-txt-model">
-          <option value="gpt-4o-mini">GPT-4o Mini</option>
-          <option value="gpt-4o">GPT-4o</option>
-          <option value="claude-3-5-sonnet">Claude 3.5</option>
-          <option value="gemini-1.5-flash">Gemini Flash</option>
-        </select>
+
+    <div class="panel show" id="pt-groq" style="margin-top:8px">
+      <div class="key-card">
+        <div class="key-row">
+          <span class="key-icon">⚡</span>
+          <div class="key-info">
+            <div class="kname">Groq — Llama 3.3 <span class="badge bf">Gratis</span></div>
+            <div class="kdesc">14.400 req/giorno · Velocissimo · No carta</div>
+            <a class="key-link" href="https://console.groq.com/keys" target="_blank">➜ Ottieni chiave gratis</a>
+          </div>
+          <div class="key-status" id="ks-groq"></div>
+        </div>
+        <input type="password" id="groq-key" placeholder="gsk_..." oninput="checkKey('groq')">
       </div>
-      <div class="field">
-        <label>Modello immagini</label>
-        <select id="puter-img-model">
-          <option value="gpt-image-1">GPT Image</option>
-          <option value="dall-e-3">DALL-E 3</option>
-          <option value="flux-schnell">Flux Schnell</option>
-          <option value="stable-diffusion-xl-base">SD XL</option>
-        </select>
+    </div>
+
+    <div class="panel" id="pt-gemini" style="margin-top:8px">
+      <div class="key-card">
+        <div class="key-row">
+          <span class="key-icon">🌐</span>
+          <div class="key-info">
+            <div class="kname">Google Gemini Flash <span class="badge bf">Gratis</span></div>
+            <div class="kdesc">15 req/min · 1M token/giorno · No carta</div>
+            <a class="key-link" href="https://aistudio.google.com/app/apikey" target="_blank">➜ Ottieni chiave gratis</a>
+          </div>
+          <div class="key-status" id="ks-gemini"></div>
+        </div>
+        <input type="password" id="gemini-key" placeholder="AIza..." oninput="checkKey('gemini')">
+      </div>
+    </div>
+
+    <div class="panel" id="pt-claude" style="margin-top:8px">
+      <div class="key-card">
+        <div class="key-row">
+          <span class="key-icon">🤖</span>
+          <div class="key-info">
+            <div class="kname">Claude Sonnet 4 <span class="badge bp">~$0.02/libro</span></div>
+            <div class="kdesc">Qualità più alta · Min $5 di crediti</div>
+            <a class="key-link" href="https://console.anthropic.com" target="_blank">➜ console.anthropic.com</a>
+          </div>
+          <div class="key-status" id="ks-claude"></div>
+        </div>
+        <input type="password" id="claude-key" placeholder="sk-ant-..." oninput="checkKey('claude')">
       </div>
     </div>
   </div>
 
-  <div id="pro-mode-section" style="display:none">
-    <div class="pro-section">
-      <div>
-        <div class="sec">✍️ Motore testo</div>
-        <div class="ptabs" style="margin-top:9px" id="ttabs">
-          <button class="ptab" data-p="gemini" onclick="swT('gemini',this)">Gemini <span class="badge bf">Free</span></button>
-          <button class="ptab active" data-p="groq" onclick="swT('groq',this)">Groq <span class="badge bf">Free</span></button>
-          <button class="ptab" data-p="claude" onclick="swT('claude',this)">Claude <span class="badge bp">Paid</span></button>
-        </div>
-        <div class="ppanel" id="pt-gemini">
-          <div class="pinfo">Chiave gratuita su <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a></div>
-          <div class="field"><label>Google AI Key</label><input type="password" id="gemini-key" placeholder="AIza..."></div>
-        </div>
-        <div class="ppanel show" id="pt-groq">
-          <div class="pinfo">Chiave gratuita su <a href="https://console.groq.com/keys" target="_blank">console.groq.com</a></div>
-          <div class="field"><label>Groq API Key</label><input type="password" id="groq-key" placeholder="gsk_..."></div>
-        </div>
-        <div class="ppanel" id="pt-claude">
-          <div class="pinfo">Chiave su <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> (~$0.02/libro)</div>
-          <div class="field"><label>Claude API Key</label><input type="password" id="claude-key" placeholder="sk-ant-..."></div>
-        </div>
-      </div>
+  <!-- IMMAGINI -->
+  <div>
+    <div class="sec">🖼 Motore immagini</div>
+    <div class="tabs" style="margin-top:8px" id="itabs">
+      <button class="tab active" onclick="swI('together',this)">Together <span class="badge bf">$1 free</span></button>
+      <button class="tab" onclick="swI('stability',this)">Stability <span class="badge bfm">25/day</span></button>
+      <button class="tab" onclick="swI('dalle',this)">DALL-E 3 <span class="badge bp">Paid</span></button>
+    </div>
 
-      <div>
-        <div class="sec">🖼 Motore immagini</div>
-        <div class="ptabs" style="margin-top:9px" id="itabs">
-          <button class="ptab active" data-p="together" onclick="swI('together',this)">Together <span class="badge bf">$1 free</span></button>
-          <button class="ptab" data-p="stability" onclick="swI('stability',this)">Stability <span class="badge bfm">25/day</span></button>
-          <button class="ptab" data-p="dalle" onclick="swI('dalle',this)">DALL-E 3 <span class="badge bp">Paid</span></button>
+    <div class="panel show" id="pi-together" style="margin-top:8px">
+      <div class="key-card">
+        <div class="key-row">
+          <span class="key-icon">🎨</span>
+          <div class="key-info">
+            <div class="kname">Together AI — Flux Schnell <span class="badge bf">$1 gratis</span></div>
+            <div class="kdesc">~20 immagini gratis · Stabile · No carta</div>
+            <a class="key-link" href="https://api.together.xyz/settings/api-keys" target="_blank">➜ Ottieni $1 gratis</a>
+          </div>
+          <div class="key-status" id="ks-together"></div>
         </div>
-        <div class="ppanel show" id="pi-together">
-          <div class="pinfo">$1 credito gratis su <a href="https://api.together.xyz/settings/api-keys" target="_blank">api.together.xyz</a> (~20 immagini)</div>
-          <div class="field"><label>Together AI Key</label><input type="password" id="together-key" placeholder="..."></div>
+        <input type="password" id="together-key" placeholder="..." oninput="checkKey('together')">
+      </div>
+    </div>
+
+    <div class="panel" id="pi-stability" style="margin-top:8px">
+      <div class="key-card">
+        <div class="key-row">
+          <span class="key-icon">🎭</span>
+          <div class="key-info">
+            <div class="kname">Stability AI SD3 <span class="badge bfm">25/giorno gratis</span></div>
+            <div class="kdesc">25 immagini/giorno · Registrazione gratuita</div>
+            <a class="key-link" href="https://platform.stability.ai/account/keys" target="_blank">➜ Ottieni chiave</a>
+          </div>
+          <div class="key-status" id="ks-stability"></div>
         </div>
-        <div class="ppanel" id="pi-stability">
-          <div class="pinfo">25 immagini/giorno gratis su <a href="https://platform.stability.ai/account/keys" target="_blank">platform.stability.ai</a></div>
-          <div class="field"><label>Stability AI Key</label><input type="password" id="stability-key" placeholder="sk-..."></div>
+        <input type="password" id="stability-key" placeholder="sk-..." oninput="checkKey('stability')">
+      </div>
+    </div>
+
+    <div class="panel" id="pi-dalle" style="margin-top:8px">
+      <div class="key-card">
+        <div class="key-row">
+          <span class="key-icon">🖼</span>
+          <div class="key-info">
+            <div class="kname">OpenAI DALL-E 3 <span class="badge bp">$0.04/img</span></div>
+            <div class="kdesc">Qualità altissima · 4 img = ~$0.16</div>
+            <a class="key-link" href="https://platform.openai.com/api-keys" target="_blank">➜ platform.openai.com</a>
+          </div>
+          <div class="key-status" id="ks-dalle"></div>
         </div>
-        <div class="ppanel" id="pi-dalle">
-          <div class="pinfo">$0.04/immagine su <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com</a></div>
-          <div class="field"><label>OpenAI API Key</label><input type="password" id="openai-key" placeholder="sk-..."></div>
-        </div>
+        <input type="password" id="openai-key" placeholder="sk-..." oninput="checkKey('openai')">
       </div>
     </div>
   </div>
@@ -250,12 +273,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
   <!-- STORIA -->
   <div>
     <div class="sec">La storia</div>
-    <div class="field" style="margin-top:9px">
-      <label>Trama</label>
-      <textarea id="plot" placeholder="Es: Un coniglietto di nome Leo vuole imparare a volare come gli uccellini del bosco. Con l'aiuto della sua amica tartaruga, scopre che ognuno ha un talento speciale..."></textarea>
-    </div>
     <div class="field" style="margin-top:8px">
-      <label>Titolo del libro</label>
+      <label>Trama</label>
+      <textarea id="plot" placeholder="Es: Un coniglietto vuole imparare a volare come gli uccellini..."></textarea>
+    </div>
+    <div class="field" style="margin-top:7px">
+      <label>Titolo</label>
       <input type="text" id="book-title" placeholder="Es: Leo e il volo segreto">
     </div>
   </div>
@@ -263,7 +286,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
   <!-- TEMA -->
   <div>
     <div class="sec">Tema visivo</div>
-    <div class="theme-grid" style="margin-top:9px" id="tgrid">
+    <div class="tgrid" style="margin-top:8px" id="tgrid">
       <button class="tbtn active" data-t="bimbi"><span class="em">🧒</span>Bimbi</button>
       <button class="tbtn" data-t="fiaba"><span class="em">🧚</span>Fiaba</button>
       <button class="tbtn" data-t="fantasy"><span class="em">🏰</span>Fantasy</button>
@@ -276,51 +299,50 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
       <button class="tbtn" data-t="natale"><span class="em">🎄</span>Natale</button>
       <button class="tbtn" data-t="custom"><span class="em">✏️</span>Custom</button>
     </div>
-    <div class="field" id="custom-field" style="margin-top:8px;display:none">
-      <label>Descrivi il tema</label>
-      <input type="text" id="custom-theme" placeholder="Es: acquerello romantico...">
+    <div class="field" id="custom-field" style="margin-top:7px;display:none">
+      <input type="text" id="custom-theme" placeholder="Descrivi il tema...">
     </div>
   </div>
 
   <!-- COLORE -->
   <div>
     <div class="sec">Colore dominante</div>
-    <div class="palette-row" style="margin-top:9px" id="palette">
-      <div class="swatch active" data-c="#ffb347" style="background:#ffb347"></div>
-      <div class="swatch" data-c="#ff6b6b" style="background:#ff6b6b"></div>
-      <div class="swatch" data-c="#ffd93d" style="background:#ffd93d"></div>
-      <div class="swatch" data-c="#6bcb77" style="background:#6bcb77"></div>
-      <div class="swatch" data-c="#00ffcc" style="background:#00ffcc"></div>
-      <div class="swatch" data-c="#a855f7" style="background:#a855f7"></div>
-      <div class="swatch" data-c="#3b82f6" style="background:#3b82f6"></div>
-      <div class="swatch" data-c="#ec4899" style="background:#ec4899"></div>
-      <div class="swatch" data-c="#f97316" style="background:#f97316"></div>
-      <div class="swatch" data-c="#e8d5b7" style="background:#e8d5b7"></div>
+    <div class="palette" style="margin-top:8px" id="palette">
+      <div class="sw active" data-c="#ffb347" style="background:#ffb347"></div>
+      <div class="sw" data-c="#ff6b6b" style="background:#ff6b6b"></div>
+      <div class="sw" data-c="#ffd93d" style="background:#ffd93d"></div>
+      <div class="sw" data-c="#6bcb77" style="background:#6bcb77"></div>
+      <div class="sw" data-c="#00ffcc" style="background:#00ffcc"></div>
+      <div class="sw" data-c="#a855f7" style="background:#a855f7"></div>
+      <div class="sw" data-c="#3b82f6" style="background:#3b82f6"></div>
+      <div class="sw" data-c="#ec4899" style="background:#ec4899"></div>
+      <div class="sw" data-c="#f97316" style="background:#f97316"></div>
+      <div class="sw" data-c="#e8d5b7" style="background:#e8d5b7"></div>
     </div>
   </div>
 
   <!-- FORMATO -->
   <div>
-    <div class="sec">Formato e lunghezza</div>
-    <div class="two" style="margin-top:9px">
+    <div class="sec">Formato</div>
+    <div class="two" style="margin-top:8px">
       <div class="field">
         <label>Formato</label>
-        <select id="format"><option value="A4">A4 (210×297)</option><option value="A5">A5 (148×210)</option><option value="square">Quadrato</option></select>
+        <select id="format"><option value="A4">A4</option><option value="A5">A5</option><option value="square">Quadrato</option></select>
       </div>
       <div class="field">
         <label>Lingua</label>
         <select id="language"><option value="italiano">Italiano</option><option value="inglese">Inglese</option><option value="spagnolo">Spagnolo</option><option value="francese">Francese</option></select>
       </div>
     </div>
-    <div class="field" style="margin-top:10px">
+    <div class="field" style="margin-top:9px">
       <label>Pagine: <span id="pval" style="color:var(--gold)">8</span></label>
       <input type="range" id="prange" min="4" max="24" value="8" step="2">
     </div>
-    <div class="field" style="margin-top:10px">
+    <div class="field" style="margin-top:9px">
       <label>Immagini: <span id="ival" style="color:var(--gold)">4</span></label>
       <input type="range" id="irange" min="1" max="12" value="4">
     </div>
-    <div class="field" style="margin-top:10px">
+    <div class="field" style="margin-top:9px">
       <label>Layout illustrazioni</label>
       <select id="ilayout">
         <option value="top">Immagine sopra, testo sotto</option>
@@ -330,25 +352,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
     </div>
   </div>
 
-  <!-- SCENE -->
-  <div>
-    <div class="sec" style="display:flex;justify-content:space-between;align-items:center">
-      <span>Momenti da illustrare</span>
-      <button class="btn-g btn" onclick="addScene()">+ Aggiungi</button>
-    </div>
-    <div style="margin-top:8px;font-size:11px;color:var(--muted);margin-bottom:7px">Quali scene vuoi illustrare?</div>
-    <div id="scenes-list"></div>
-  </div>
-
   <!-- PROGRESS -->
-  <div class="prog-area" id="prog">
-    <div style="font-size:13px;font-weight:500;color:var(--gold)">Generazione in corso...</div>
+  <div class="prog" id="prog">
+    <div style="font-size:12px;font-weight:500;color:var(--gold)">Generazione in corso...</div>
     <div class="pbar-w"><div class="pbar" id="pbar"></div></div>
     <div class="plog" id="plog"></div>
   </div>
 
   <button class="btn btn-p" id="gen-btn" onclick="generate()">✨ Genera Storybook</button>
-  <div style="display:flex;gap:7px">
+  <div style="display:flex;gap:6px">
     <button class="btn btn-o" style="flex:1;font-size:12px" onclick="exportPDF()">⬇ PDF</button>
     <button class="btn btn-o" style="flex:1;font-size:12px" onclick="clearAll()">🗑 Reset</button>
   </div>
@@ -357,66 +369,42 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
 <main class="main">
   <div class="prev-head">
     <h2>Anteprima</h2>
-    <div style="font-size:11px;color:var(--muted)" id="prev-info">Genera il tuo storybook · <span style="color:var(--gold)">Clicca sulle pagine per modificarle</span></div>
+    <div style="font-size:11px;color:var(--muted)" id="prev-info"></div>
   </div>
-  <div id="pgrid" class="pages-grid">
+  <div id="pgrid" class="pgrid">
     <div class="empty-state">
       <div class="icon">📖</div>
-      <p>Il tuo storybook apparirà qui.<br>In modalità <strong style="color:var(--gold)">Free</strong> non serve nessuna chiave API!</p>
+      <p>Il tuo storybook apparirà qui.<br><br>
+      <strong style="color:var(--gold)">Per iniziare gratis:</strong><br>
+      Testo → chiave Groq (console.groq.com)<br>
+      Immagini → Together AI ($1 gratis)</p>
     </div>
   </div>
 </main>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-// ── STATE ──────────────────────────────────────────────
 let selTheme='bimbi', selColor='#ffb347';
 let scenes=[], genPages=[], isGen=false;
-let mode='free';   // 'free' | 'pro'
 let tProv='groq', iProv='together';
 
 const THEMES={
-  bimbi:"children's book illustration, soft watercolor, cute round characters, pastel colors, gentle outlines, playful warm atmosphere, simple shapes, nursery art style",
-  fiaba:"fairy tale illustration, magical forest, enchanted castle, glowing fairies, soft painterly style, warm golden light, storybook art, dreamy atmosphere",
-  fantasy:"epic fantasy illustration, painterly style, magical world, medieval architecture, mystical creatures, dramatic lighting, heroic characters",
-  spazio:"space exploration illustration, colorful planets, friendly rockets, cute aliens, starfield background, vibrant cosmic colors, children's sci-fi art",
-  dino:"dinosaur adventure illustration, lush prehistoric jungle, cute friendly dinosaurs, bright green tropical plants, children's book style",
-  oceano:"underwater ocean illustration, colorful coral reef, friendly fish and sea creatures, blue-green water, light rays, children's book style",
-  anime:"anime illustration, manga art style, clean line art, vibrant colors, expressive big eyes, Japanese aesthetic, studio ghibli inspired",
-  cyberpunk:"cyberpunk digital art, neon lights, dark rainy city, glowing circuits, futuristic dystopia, blue cyan neon glow",
-  noir:"film noir style, high contrast black and white, dramatic shadows, moody atmosphere, rain-soaked streets, detective story",
-  natale:"Christmas illustration, cozy winter scene, Santa Claus, snow-covered village, warm glowing lights, festive colors, children's holiday book style",
+  bimbi:"children's book illustration, soft watercolor, cute round characters, pastel colors, gentle outlines, playful warm, simple shapes",
+  fiaba:"fairy tale illustration, magical forest, enchanted castle, glowing fairies, soft painterly, warm golden light, dreamy",
+  fantasy:"epic fantasy illustration, painterly, magical world, medieval architecture, mystical creatures, dramatic lighting",
+  spazio:"space illustration, colorful planets, friendly rockets, cute aliens, starfield, vibrant cosmic colors, children sci-fi",
+  dino:"dinosaur adventure, lush prehistoric jungle, cute friendly dinosaurs, bright tropical plants, children book style",
+  oceano:"underwater ocean, colorful coral reef, friendly fish, blue-green water, light rays, children book style",
+  anime:"anime illustration, manga art, clean line art, vibrant colors, expressive big eyes, studio ghibli inspired",
+  cyberpunk:"cyberpunk digital art, neon lights, dark rainy city, glowing circuits, blue cyan neon",
+  noir:"film noir, high contrast black and white, dramatic shadows, moody atmosphere, rain-soaked streets",
+  natale:"Christmas illustration, cozy winter, Santa Claus, snow village, warm glowing lights, festive, children holiday",
   custom:""
 };
-const THEME_CSS={bimbi:'theme-bimbi',fiaba:'theme-fiaba',fantasy:'theme-fantasy',spazio:'theme-spazio',dino:'theme-dino',oceano:'theme-oceano',anime:'theme-anime',cyberpunk:'theme-cyberpunk',noir:'theme-noir',natale:'theme-natale',custom:''};
+const TCSS={bimbi:'theme-bimbi',fiaba:'theme-fiaba',fantasy:'theme-fantasy',spazio:'theme-spazio',dino:'theme-dino',oceano:'theme-oceano',anime:'theme-anime',cyberpunk:'theme-cyberpunk',noir:'theme-noir',natale:'theme-natale',custom:''};
 
-// ── MODE SWITCH ────────────────────────────────────────
-function setMode(m){
-  mode=m;
-  document.getElementById('btn-free').classList.toggle('active',m==='free');
-  document.getElementById('btn-pro').classList.toggle('active',m==='pro');
-  document.getElementById('free-mode-section').style.display=m==='free'?'block':'none';
-  document.getElementById('pro-mode-section').style.display=m==='pro'?'block':'none';
-}
-
-// ── INIT ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
-  // Wait for Puter.js to load - check every 500ms up to 15 seconds
-  let puterChecks = 0;
-  const checkPuter = setInterval(()=>{
-    puterChecks++;
-    const st = document.getElementById('puter-status');
-    if(typeof puter !== 'undefined' && puter.ai){
-      clearInterval(checkPuter);
-      if(st){ st.textContent='✅ Pronto'; st.style.color='var(--green)'; }
-      setTimeout(()=>{ if(st) st.style.display='none'; },2000);
-    } else if(puterChecks > 30){
-      clearInterval(checkPuter);
-      if(st){ st.textContent='⚠️ Ricarica la pagina'; st.style.color='#eb5757'; }
-    }
-  },500);
   document.getElementById('tgrid').addEventListener('click',e=>{
     const b=e.target.closest('.tbtn'); if(!b) return;
     document.querySelectorAll('.tbtn').forEach(x=>x.classList.remove('active'));
@@ -424,11 +412,11 @@ document.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('custom-field').style.display=selTheme==='custom'?'block':'none';
   });
   document.getElementById('palette').addEventListener('click',e=>{
-    const s=e.target.closest('.swatch'); if(!s) return;
-    document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('active'));
+    const s=e.target.closest('.sw'); if(!s) return;
+    document.querySelectorAll('.sw').forEach(x=>x.classList.remove('active'));
     s.classList.add('active'); selColor=s.dataset.c;
   });
-  const pr=document.getElementById('prange'), ir=document.getElementById('irange');
+  const pr=document.getElementById('prange'),ir=document.getElementById('irange');
   pr.addEventListener('input',()=>{
     document.getElementById('pval').textContent=pr.value;
     if(parseInt(ir.value)>parseInt(pr.value)){ir.value=pr.value;document.getElementById('ival').textContent=pr.value;}
@@ -440,21 +428,26 @@ document.addEventListener('DOMContentLoaded',()=>{
   addScene('Scena finale');
 });
 
+function checkKey(id){
+  const inputs={groq:'groq-key',gemini:'gemini-key',claude:'claude-key',together:'together-key',stability:'stability-key',openai:'openai-key'};
+  const el=document.getElementById(inputs[id]);
+  const st=document.getElementById('ks-'+id);
+  if(!el||!st) return;
+  st.className='key-status '+(el.value.trim().length>10?'ok':'');
+}
+
 function swT(p,btn){
   tProv=p;
-  document.querySelectorAll('#ttabs .ptab').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
-  ['gemini','groq','claude'].forEach(id=>document.getElementById('pt-'+id).classList.toggle('show',id===p));
+  document.querySelectorAll('#ttabs .tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+  ['groq','gemini','claude'].forEach(id=>document.getElementById('pt-'+id).classList.toggle('show',id===p));
 }
 function swI(p,btn){
   iProv=p;
-  document.querySelectorAll('#itabs .ptab').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+  document.querySelectorAll('#itabs .tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
   ['together','stability','dalle'].forEach(id=>document.getElementById('pi-'+id).classList.toggle('show',id===p));
 }
 
-// ── SCENES ────────────────────────────────────────────
-function addScene(txt=''){
-  scenes.push({id:Date.now()+Math.random(),text:txt}); renderScenes();
-}
+function addScene(txt=''){scenes.push({id:Date.now()+Math.random(),text:txt});renderScenes();}
 function removeScene(id){scenes=scenes.filter(s=>s.id!==id);renderScenes();}
 function renderScenes(){
   document.getElementById('scenes-list').innerHTML=scenes.map((s,i)=>`
@@ -465,27 +458,20 @@ function renderScenes(){
     </div>`).join('');
 }
 
-// ── GENERATE ──────────────────────────────────────────
 async function generate(){
   if(isGen) return;
   const plot=document.getElementById('plot').value.trim();
   const title=document.getElementById('book-title').value.trim()||'Il mio Storybook';
   if(!plot){showToast('Inserisci la trama!'); return;}
 
-  if(mode==='free' && (typeof puter === 'undefined' || !puter.ai)){
-    showToast('Puter.js sta caricando, riprova tra 2 secondi');
-    isGen=false;
-    document.getElementById('gen-btn').disabled=false;
-    return;
-  }
-  if(mode==='pro'){
-    if(tProv==='gemini'&&!document.getElementById('gemini-key').value.trim()){showToast('Inserisci chiave Gemini'); return;}
-    if(tProv==='groq'&&!document.getElementById('groq-key').value.trim()){showToast('Inserisci chiave Groq'); return;}
-    if(tProv==='claude'&&!document.getElementById('claude-key').value.trim()){showToast('Inserisci chiave Claude'); return;}
-    if(iProv==='together'&&!document.getElementById('together-key').value.trim()){showToast('Inserisci chiave Together AI'); return;}
-    if(iProv==='stability'&&!document.getElementById('stability-key').value.trim()){showToast('Inserisci chiave Stability'); return;}
-    if(iProv==='dalle'&&!document.getElementById('openai-key').value.trim()){showToast('Inserisci chiave OpenAI'); return;}
-  }
+  const keys={groq:document.getElementById('groq-key').value.trim(),gemini:document.getElementById('gemini-key').value.trim(),claude:document.getElementById('claude-key').value.trim(),together:document.getElementById('together-key').value.trim(),stability:document.getElementById('stability-key').value.trim(),openai:document.getElementById('openai-key').value.trim()};
+
+  if(tProv==='groq'&&!keys.groq){showToast('Inserisci chiave Groq (gratuita su console.groq.com)'); return;}
+  if(tProv==='gemini'&&!keys.gemini){showToast('Inserisci chiave Gemini (gratuita su aistudio.google.com)'); return;}
+  if(tProv==='claude'&&!keys.claude){showToast('Inserisci chiave Claude'); return;}
+  if(iProv==='together'&&!keys.together){showToast('Inserisci chiave Together AI ($1 gratis su api.together.xyz)'); return;}
+  if(iProv==='stability'&&!keys.stability){showToast('Inserisci chiave Stability AI'); return;}
+  if(iProv==='dalle'&&!keys.openai){showToast('Inserisci chiave OpenAI'); return;}
 
   isGen=true; genPages=[];
   document.getElementById('gen-btn').disabled=true;
@@ -495,80 +481,74 @@ async function generate(){
   const totalI=parseInt(document.getElementById('irange').value);
   const lang=document.getElementById('language').value;
   const layout=document.getElementById('ilayout').value;
-  const sceneList=scenes.filter(s=>s.text.trim()).map(s=>s.text);
-  const themeStyle=selTheme==='custom'?(document.getElementById('custom-theme').value||'illustrative art'): THEMES[selTheme];
-  const modeLabel=mode==='free'?'Puter (free)':tProv+'+'+iProv;
+  const themeStyle=selTheme==='custom'?(document.getElementById('custom-theme').value||'illustrative art'):THEMES[selTheme];
 
-  let step=0; const tot=3+totalI;
+  let step=0; const tot=2+totalI+1;
   const log=(msg,type='')=>{
     step++;
     document.getElementById('pbar').style.width=Math.min(Math.round(step/tot*100),98)+'%';
     const el=document.createElement('div'); el.className='le '+type; el.textContent='› '+msg;
-    const lEl=document.getElementById('plog'); lEl.appendChild(el); lEl.scrollTop=lEl.scrollHeight;
+    const l=document.getElementById('plog'); l.appendChild(el); l.scrollTop=l.scrollHeight;
   };
 
   try{
-    // 1. TEXT
-    log('Generazione testo ('+modeLabel+')...');
-    const tPrompt=`Sei un autore di libri illustrati per bambini.
+    // STEP 1: AI genera testo + decide quali pagine illustrare + prompt immagine
+    log('Generazione testo e piano illustrazioni...');
+    const tRaw=await callText(`Sei un autore e art director di libri illustrati per bambini.
 Trama: "${plot}"
-Tema: ${themeStyle}
-Numero pagine: ${totalP}
+Tema visivo: ${themeStyle}
+Colore dominante: ${selColor}
+Numero pagine totali: ${totalP} (inclusa copertina)
+Numero pagine da illustrare: ${totalI} (esclusa copertina che ha sempre un'immagine)
 Lingua: ${lang}
-Momenti chiave: ${sceneList.join(' | ')}
 
-Crea ${totalP} pagine per uno storybook. La prima è la copertina.
-Ogni pagina: titolo breve (max 4 parole) + testo (max 70 parole, adatto all'età).
+Crea il libro completo. Regole:
+- Pagina 1 = copertina (sempre con immagine)
+- Distribuisci le ${totalI} immagini in modo narrativo (non consecutive, sparse nel libro)
+- Per le pagine con immagine, scrivi un prompt visivo dettagliato in inglese per il generatore AI
+- Testo max 70 parole per pagina, adatto all'età
+
 RISPONDI SOLO con JSON array, nient'altro:
-[{"type":"cover","title":"${title}","subtitle":"breve sottotitolo"},{"type":"text","title":"Titolo","text":"testo..."},...]`;
+[
+  {"type":"cover","title":"${title}","subtitle":"sottotitolo breve","imgPrompt":"detailed image prompt in english for book cover, ${themeStyle}, ${selColor} dominant color, title ${title}, professional children book cover art"},
+  {"type":"text","title":"titolo breve","text":"testo pagina..."},
+  {"type":"image","title":"titolo breve","text":"testo pagina...","imgPrompt":"detailed image prompt in english describing exactly this scene, ${themeStyle}, ${selColor} dominant color, children book illustration"},
+  ...
+]`);
 
-    const tRaw=await callText(tPrompt);
     let pages=[];
     try{pages=JSON.parse(tRaw.replace(/```json|```/g,'').trim());}
-    catch{throw new Error('Parsing testo fallito');}
-    log(pages.length+' pagine create','ok');
+    catch{throw new Error('Parsing testo fallito — riprova');}
+    log(pages.length+' pagine create, '+ pages.filter(p=>p.imgPrompt).length+' illustrazioni pianificate','ok');
 
-    // 2. IMG PROMPTS
-    log('Ottimizzazione prompt immagini...');
-    const imgScenes=sceneList.length>0?sceneList.slice(0,totalI):pages.slice(1,totalI+1).map(p=>p.title||'');
-    const pPrompt=`Prompt engineer per immagini AI per bambini.
-Per ogni scena crea un prompt visivo in inglese, stile: "${themeStyle}", colore dominante: ${selColor}.
-Scene:\n${imgScenes.map((s,i)=>`${i+1}. ${s}`).join('\n')}
-RISPONDI SOLO con JSON: [{"scene":"...","prompt":"..."},...]`;
-    const pRaw=await callText(pPrompt);
-    let imgPr=[];
-    try{imgPr=JSON.parse(pRaw.replace(/```json|```/g,'').trim());}
-    catch{throw new Error('Parsing prompt immagini fallito');}
-    log(imgPr.length+' prompt pronti','ok');
-
-    // 3. ASSEMBLE + show text immediately
-    genPages=assemble(pages,imgPr.map(()=>({url:null})),layout);
+    // STEP 2: Assemble pages (AI already decided types and positions)
+    genPages = pages.map((p,i)=>({
+      ...p,
+      imgUrl: null,
+      imgLayout: p.type==='cover'?'cover':layout,
+      imgSlot: p.imgPrompt ? i : -1
+    }));
     renderPreview(genPages);
-    document.getElementById('prev-info').textContent=genPages.length+' pagine · '+modeLabel+' · Clicca per modificare';
-    log('Testo pronto! Caricamento immagini...','ok');
+    document.getElementById('prev-info').textContent=genPages.length+' pagine · '+tProv+' + '+iProv;
+    log('Testo pronto! Generazione immagini in corso...','ok');
 
-    // 4. COVER image
-    log('Generazione copertina...');
-    try{
-      const coverPrompt=`Book cover illustration, ${themeStyle}, dominant color ${selColor}, title "${title}", beautiful professional children's book cover art, centered composition, vivid colors`;
-      const coverUrl=await genImg(coverPrompt);
-      const coverIdx=genPages.findIndex(p=>p.type==='cover');
-      if(coverIdx>=0){ genPages[coverIdx].imgUrl=coverUrl; updateCoverImg(coverIdx,coverUrl); }
-      log('Copertina ok','ok');
-    }catch(e){ log('Copertina fallita: '+e.message,'err'); }
-
-    // 5. IMAGES async
-    for(let i=0;i<imgPr.length;i++){
-      log('Immagine '+(i+1)+'/'+imgPr.length+'...');
+    // STEP 3: Generate images for each page that has an imgPrompt
+    for(let i=0;i<genPages.length;i++){
+      const page=genPages[i];
+      if(!page.imgPrompt) continue;
+      const label=page.type==='cover'?'Copertina':'Immagine p.'+(i+1);
+      log(label+'...');
       try{
-        const url=await genImg(imgPr[i].prompt);
-        const pi=genPages.findIndex(p=>p.type==='image'&&p.imgSlot===i);
-        if(pi>=0){genPages[pi].imgUrl=url; updatePageImg(pi,url);}
-        log('Immagine '+(i+1)+' ok','ok');
+        const url=await genImg(page.imgPrompt, keys);
+        genPages[i].imgUrl=url;
+        if(page.type==='cover') updateCover(i,url);
+        else updatePageImg(i,url);
+        log(label+' ok','ok');
       }catch(e){
-        log('Immagine '+(i+1)+' fallita: '+e.message,'err');
+        log(label+' fallita: '+e.message,'err');
       }
     }
+
     document.getElementById('pbar').style.width='100%';
     log('Storybook completo! 🎉','ok');
 
@@ -576,230 +556,152 @@ RISPONDI SOLO con JSON: [{"scene":"...","prompt":"..."},...]`;
     showToast('Errore: '+err.message);
     log('Errore: '+err.message,'err');
   }
-  isGen=false;
-  document.getElementById('gen-btn').disabled=false;
+  isGen=false; document.getElementById('gen-btn').disabled=false;
 }
 
-// ── TEXT ──────────────────────────────────────────────
 async function callText(prompt){
-  if(mode==='free'){
-    if(typeof puter === 'undefined') throw new Error('Puter.js non ancora caricato, riprova tra 2 secondi');
-    const model = document.getElementById('puter-txt-model').value;
-    const resp = await puter.ai.chat(prompt, {model});
-    if(typeof resp === 'string') return resp;
-    return resp?.message?.content || resp?.text || resp?.content?.[0]?.text || JSON.stringify(resp);
-  }
   if(tProv==='groq') return callGroq(document.getElementById('groq-key').value.trim(),prompt);
   if(tProv==='gemini') return callGemini(document.getElementById('gemini-key').value.trim(),prompt);
   if(tProv==='claude') return callClaude(document.getElementById('claude-key').value.trim(),prompt);
 }
-
-async function callGroq(key,prompt){
-  const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:4000,messages:[{role:'user',content:prompt}]})});
+async function callGroq(k,p){
+  const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:4000,messages:[{role:'user',content:p}]})});
   if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'Groq error '+r.status);}
   return (await r.json()).choices?.[0]?.message?.content||'';
 }
-async function callGemini(key,prompt){
-  const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:4000}})});
+async function callGemini(k,p){
+  const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:p}]}],generationConfig:{maxOutputTokens:4000}})});
   if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'Gemini error '+r.status);}
   return (await r.json()).candidates?.[0]?.content?.parts?.[0]?.text||'';
 }
-async function callClaude(key,prompt){
-  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:prompt}]})});
+async function callClaude(k,p){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:p}]})});
   if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'Claude error '+r.status);}
   return (await r.json()).content?.[0]?.text||'';
 }
 
-// ── IMAGES ────────────────────────────────────────────
-async function genImg(prompt){
-  if(mode==='free'){
-    const model = document.getElementById('puter-img-model').value;
-    const resp = await puter.ai.txt2img(prompt, {model});
-    // Puter returns an <img> element or blob or URL
-    if(resp instanceof HTMLImageElement) return resp.src;
-    if(resp instanceof Blob) return URL.createObjectURL(resp);
-    if(typeof resp === 'string') return resp;
-    return resp?.src || resp?.url || null;
-  }
-  if(iProv==='stability') return genStability(document.getElementById('stability-key').value.trim(),prompt);
-  if(iProv==='dalle') return genDalle(document.getElementById('openai-key').value.trim(),prompt);
+async function genImg(prompt,keys){
+  if(iProv==='together') return genTogether(keys.together,prompt);
+  if(iProv==='stability') return genStability(keys.stability,prompt);
+  if(iProv==='dalle') return genDalle(keys.openai,prompt);
 }
-
-async function genFooocus(prompt){
-  const base = document.getElementById('fooocus-url').value.trim().replace(/\/$/,'');
-  const model = document.getElementById('fooocus-model').value;
-  const body = {
-    prompt: prompt.slice(0, 1000),
-    negative_prompt: 'ugly, deformed, bad anatomy, watermark, text',
-    style_selections: ['Fooocus V2', 'Fooocus Enhance'],
-    performance_selection: 'Speed',
-    aspect_ratios_selection: '1152*896',
-    image_number: 1,
-    output_format: 'jpeg',
-    async_process: false
-  };
-  if(model) body.base_model_name = model;
-
-  const r = await fetch(base + '/v1/generation/text-to-image', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-    body: JSON.stringify(body)
-  });
-  if(!r.ok){
-    const e = await r.json().catch(()=>({}));
-    throw new Error(e?.detail || 'Fooocus non raggiungibile — avvialo con --api');
-  }
-  const data = await r.json();
-  // Fooocus returns array of {url, seed, finish_reason}
-  const imgUrl = data?.[0]?.url;
-  if(!imgUrl) throw new Error('Nessuna immagine da Fooocus');
-  // URL is relative to Fooocus server
-  return imgUrl.startsWith('http') ? imgUrl : base + imgUrl;
-}
-
-async function genTogether(key,prompt){
-  const r=await fetch('https://api.together.xyz/v1/images/generations',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'black-forest-labs/FLUX.1-schnell-Free',prompt:prompt.slice(0,1000),width:1024,height:1024,steps:4,n:1})});
+async function genTogether(k,p){
+  const r=await fetch('https://api.together.xyz/v1/images/generations',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:'black-forest-labs/FLUX.1-schnell-Free',prompt:p.slice(0,1000),width:1024,height:1024,steps:4,n:1})});
   if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'Together error '+r.status);}
   return (await r.json()).data?.[0]?.url||null;
 }
-async function genStability(key,prompt){
-  const f=new FormData(); f.append('prompt',prompt.slice(0,2000)); f.append('output_format','jpeg');
-  const r=await fetch('https://api.stability.ai/v2beta/stable-image/generate/core',{method:'POST',headers:{'Authorization':'Bearer '+key,'Accept':'application/json'},body:f});
+async function genStability(k,p){
+  const f=new FormData();f.append('prompt',p.slice(0,2000));f.append('output_format','jpeg');
+  const r=await fetch('https://api.stability.ai/v2beta/stable-image/generate/core',{method:'POST',headers:{'Authorization':'Bearer '+k,'Accept':'application/json'},body:f});
   if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.message||'Stability error '+r.status);}
   return 'data:image/jpeg;base64,'+(await r.json()).image;
 }
-async function genDalle(key,prompt){
-  const r=await fetch('https://api.openai.com/v1/images/generations',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'dall-e-3',prompt:prompt.slice(0,4000),n:1,size:'1024x1024',quality:'standard'})});
+async function genDalle(k,p){
+  const r=await fetch('https://api.openai.com/v1/images/generations',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:'dall-e-3',prompt:p.slice(0,4000),n:1,size:'1024x1024',quality:'standard'})});
   if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'DALL-E error '+r.status);}
   return (await r.json()).data?.[0]?.url||null;
 }
 
-// ── ASSEMBLE & RENDER ─────────────────────────────────
-function assemble(textPages,imgUrls,layout){
-  const result=[]; let imgIdx=0;
-  const step=Math.max(1,Math.floor(textPages.length/(imgUrls.length+1)));
-  const imgPos=new Set();
-  for(let i=0;i<imgUrls.length;i++) imgPos.add(Math.min(1+(i+1)*step-1,textPages.length-1));
-  for(let i=0;i<textPages.length;i++){
-    const p=textPages[i];
-    if(i===0&&p.type==='cover') result.push({...p,type:'cover'});
-    else if(imgPos.has(i)&&imgIdx<imgUrls.length) result.push({...p,type:'image',imgUrl:null,imgLayout:layout,imgSlot:imgIdx++});
-    else result.push({...p,type:'text'});
+function assemble(pages,imgs,layout){
+  const res=[]; let idx=0;
+  const step=Math.max(1,Math.floor(pages.length/(imgs.length+1)));
+  const pos=new Set();
+  for(let i=0;i<imgs.length;i++) pos.add(Math.min(1+(i+1)*step-1,pages.length-1));
+  for(let i=0;i<pages.length;i++){
+    const p=pages[i];
+    if(i===0&&p.type==='cover') res.push({...p,type:'cover'});
+    else if(pos.has(i)&&idx<imgs.length) res.push({...p,type:'image',imgUrl:null,imgLayout:layout,imgSlot:idx++});
+    else res.push({...p,type:'text'});
   }
-  return result;
+  return res;
 }
 
 function renderPreview(pages){
-  const tc=THEME_CSS[selTheme]||'';
-  document.getElementById('pgrid').innerHTML=pages.map((p,idx)=>buildCard(p,idx,tc)).join('');
+  const tc=TCSS[selTheme]||'';
+  document.getElementById('pgrid').innerHTML=pages.map((p,i)=>buildCard(p,i,tc)).join('');
 }
-
 function buildCard(page,idx,tc){
-  tc=tc||THEME_CSS[selTheme]||'';
-  if(page.type==='cover') return `<div class="pc is-cover ${tc}" id="cover-card-${idx}" onclick="openEdit(${idx})" style="${page.imgUrl?'background-image:url('+page.imgUrl+');background-size:cover;background-position:center':''}">
-    <div class="pnum">p.${idx+1}</div>
-    ${page.imgUrl?'<div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);border-radius:6px"></div>':''}
-    <div style="position:relative;z-index:1">
-      <div class="cover-t" id="ct-${idx}" style="${page.imgUrl?'color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.8)':''}">${esc(page.title)}</div>
-      <div class="cover-s" id="cs-${idx}" style="${page.imgUrl?'color:rgba(255,255,255,0.85)':''}">${esc(page.subtitle||'')}</div>
-    </div>
-    ${editOverlayHTML(idx,'cover',page)}</div>`;
-  if(page.type==='image'){
-    const imgHtml=page.imgUrl?`<img src="${page.imgUrl}" alt="ill" id="img-${idx}">`:`<div class="pimg-spin" id="spin-${idx}">⏳</div>`;
-    if(page.imgLayout==='full') return `<div class="pc ${tc}" onclick="openEdit(${idx})">
-      <div class="pnum">p.${idx+1}</div>
-      <div class="pimg" style="flex:1" id="pimg-${idx}">${imgHtml}</div>
-      ${editOverlayHTML(idx,'image',page)}</div>`;
-    const top=page.imgLayout==='top';
-    return `<div class="pc ${tc}" onclick="openEdit(${idx})">
-      <div class="pnum">p.${idx+1}</div>
-      ${top?`<div class="pimg" style="height:55%" id="pimg-${idx}">${imgHtml}</div>`:''}
-      <div class="ptxt"><div class="pchap" id="pc-${idx}">${esc(page.title||'')}</div><div class="pbody" id="pb-${idx}">${esc(page.text||'')}</div></div>
-      ${!top?`<div class="pimg" style="height:55%" id="pimg-${idx}">${imgHtml}</div>`:''}
-      ${editOverlayHTML(idx,'image',page)}</div>`;
+  tc=tc||TCSS[selTheme]||'';
+  const pn=`<div class="pnum">p.${idx+1}</div>`;
+  if(page.type==='cover'){
+    const bg=page.imgUrl?`style="background-image:url(${page.imgUrl});background-size:cover;background-position:center"`:'';
+    const overlay=page.imgUrl?`<div style="position:absolute;inset:0;background:rgba(0,0,0,0.4);border-radius:6px"></div>`:'';
+    return `<div class="pc is-cover ${tc}" id="cc-${idx}" onclick="openEdit(${idx})" ${bg}>
+      ${pn}${overlay}
+      <div style="position:relative;z-index:1">
+        <div class="cover-t" id="ct-${idx}" ${page.imgUrl?'style="color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.8)"':''}>${esc(page.title)}</div>
+        <div class="cover-s" id="cs-${idx}" ${page.imgUrl?'style="color:rgba(255,255,255,0.85)"':''}>${esc(page.subtitle||'')}</div>
+      </div>${editHTML(idx,'cover',page)}</div>`;
   }
-  return `<div class="pc text-only ${tc}" onclick="openEdit(${idx})">
-    <div class="pnum">p.${idx+1}</div>
+  // Page with image (AI decided this page gets an illustration)
+  if(page.type==='image'||page.imgPrompt){
+    const imgH=page.imgUrl
+      ?`<img src="${page.imgUrl}" alt="ill" id="img-${idx}">`
+      :`<div class="pimg-spin" id="spin-${idx}">⏳</div>`;
+    const lay=page.imgLayout||'top';
+    if(lay==='full') return `<div class="pc ${tc}" onclick="openEdit(${idx})">${pn}<div class="pimg" style="flex:1" id="pimg-${idx}">${imgH}</div>${editHTML(idx,'image',page)}</div>`;
+    const top=lay==='top';
+    return `<div class="pc ${tc}" onclick="openEdit(${idx})">${pn}
+      ${top?`<div class="pimg" style="height:52%" id="pimg-${idx}">${imgH}</div>`:''}
+      <div class="ptxt"><div class="pchap" id="pc-${idx}">${esc(page.title||'')}</div><div class="pbody" id="pb-${idx}">${esc(page.text||'')}</div></div>
+      ${!top?`<div class="pimg" style="height:52%" id="pimg-${idx}">${imgH}</div>`:''}
+      ${editHTML(idx,'image',page)}</div>`;
+  }
+  // Text only page
+  return `<div class="pc text-only ${tc}" onclick="openEdit(${idx})">${pn}
     <div class="ptxt"><div class="pchap" id="pc-${idx}">${esc(page.title||'')}</div><div class="pbody" id="pb-${idx}">${esc(page.text||'')}</div></div>
-    ${editOverlayHTML(idx,'text',page)}</div>`;
+    ${editHTML(idx,'text',page)}</div>`;
 }
-
-function editOverlayHTML(idx,type,page){
-  return `<div class="edit-overlay" id="eo-${idx}" onclick="event.stopPropagation()">
-    <div class="elbl">Titolo</div>
-    <input type="text" id="ei-t-${idx}" value="${esc(page.title||'')}">
-    ${type!=='cover'?`<div class="elbl" style="margin-top:4px">Testo</div>
-    <textarea id="ei-b-${idx}" rows="5">${esc(page.text||'')}</textarea>`:''}
-    <div class="edit-btns">
-      <button class="ebtn-cancel" onclick="closeEdit(${idx})">Annulla</button>
-      <button class="ebtn-ok" onclick="saveEdit(${idx},'${type}')">✓ Salva</button>
+function editHTML(idx,type,page){
+  return `<div class="eo" id="eo-${idx}" onclick="event.stopPropagation()">
+    <div class="elbl">Titolo</div><input type="text" id="ei-t-${idx}" value="${esc(page.title||'')}">
+    ${type!=='cover'?`<div class="elbl" style="margin-top:3px">Testo</div><textarea id="ei-b-${idx}" rows="5">${esc(page.text||'')}</textarea>`:''}
+    <div class="eo-btns">
+      <button class="ecancel" onclick="closeEdit(${idx})">Annulla</button>
+      <button class="eok" onclick="saveEdit(${idx},'${type}')">✓ Salva</button>
     </div></div>`;
 }
-
-function openEdit(idx){
-  document.querySelectorAll('.edit-overlay').forEach(e=>e.classList.remove('show'));
-  document.getElementById('eo-'+idx)?.classList.add('show');
-}
-function closeEdit(idx){document.getElementById('eo-'+idx)?.classList.remove('show');}
-function saveEdit(idx,type){
-  const t=document.getElementById('ei-t-'+idx).value;
-  genPages[idx].title=t;
+function openEdit(i){document.querySelectorAll('.eo').forEach(e=>e.classList.remove('show'));document.getElementById('eo-'+i)?.classList.add('show');}
+function closeEdit(i){document.getElementById('eo-'+i)?.classList.remove('show');}
+function saveEdit(i,type){
+  const t=document.getElementById('ei-t-'+i).value; genPages[i].title=t;
   if(type!=='cover'){
-    const b=document.getElementById('ei-b-'+idx).value;
-    genPages[idx].text=b;
-    const pb=document.getElementById('pb-'+idx); if(pb) pb.textContent=b;
-    const pc=document.getElementById('pc-'+idx); if(pc) pc.textContent=t;
-  }else{
-    const ct=document.getElementById('ct-'+idx); if(ct) ct.textContent=t;
-  }
-  closeEdit(idx);
+    const b=document.getElementById('ei-b-'+i).value; genPages[i].text=b;
+    const pb=document.getElementById('pb-'+i); if(pb) pb.textContent=b;
+    const pc=document.getElementById('pc-'+i); if(pc) pc.textContent=t;
+  }else{const ct=document.getElementById('ct-'+i); if(ct) ct.textContent=t;}
+  closeEdit(i);
 }
-
 function updatePageImg(pi,url){
-  const spin=document.getElementById('spin-'+pi);
-  if(spin){const img=document.createElement('img');img.src=url;img.alt='ill';img.id='img-'+pi;spin.replaceWith(img);}
+  const sp=document.getElementById('spin-'+pi);
+  if(sp){const img=document.createElement('img');img.src=url;img.alt='ill';img.id='img-'+pi;sp.replaceWith(img);}
+}
+function updateCover(idx,url){
+  const c=document.getElementById('cc-'+idx); if(!c) return;
+  c.style.backgroundImage=`url(${url})`; c.style.backgroundSize='cover'; c.style.backgroundPosition='center';
+  if(!c.querySelector('.cov-ov')){const d=document.createElement('div');d.className='cov-ov';d.style.cssText='position:absolute;inset:0;background:rgba(0,0,0,0.4);border-radius:6px';c.insertBefore(d,c.children[1]);}
+  const ct=document.getElementById('ct-'+idx); if(ct) ct.style.cssText='color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.8)';
+  const cs=document.getElementById('cs-'+idx); if(cs) cs.style.cssText='color:rgba(255,255,255,0.85)';
 }
 
-function updateCoverImg(idx,url){
-  const card=document.getElementById('cover-card-'+idx);
-  if(!card) return;
-  card.style.backgroundImage=`url(${url})`;
-  card.style.backgroundSize='cover';
-  card.style.backgroundPosition='center';
-  // Add overlay if not present
-  if(!card.querySelector('.cover-overlay')){
-    const overlay=document.createElement('div');
-    overlay.className='cover-overlay';
-    overlay.style.cssText='position:absolute;inset:0;background:rgba(0,0,0,0.35);border-radius:6px';
-    card.insertBefore(overlay, card.querySelector('[style*="z-index"]')||card.children[1]);
-  }
-  // Make text white
-  const ct=document.getElementById('ct-'+idx);
-  const cs=document.getElementById('cs-'+idx);
-  if(ct) ct.style.cssText='color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.8)';
-  if(cs) cs.style.cssText='color:rgba(255,255,255,0.85)';
-}
-
-// ── PDF EXPORT ────────────────────────────────────────
 async function exportPDF(){
   if(!genPages.length){showToast('Genera prima lo storybook!'); return;}
   const {jsPDF}=window.jspdf;
   const fmt=document.getElementById('format').value;
-  const pdfFmt=fmt==='A5'?'a5':fmt==='square'?[200,200]:'a4';
-  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:pdfFmt});
-  const w=doc.internal.pageSize.getWidth(), h=doc.internal.pageSize.getHeight();
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:fmt==='A5'?'a5':fmt==='square'?[200,200]:'a4'});
+  const w=doc.internal.pageSize.getWidth(),h=doc.internal.pageSize.getHeight();
   for(let i=0;i<genPages.length;i++){
     if(i>0) doc.addPage();
-    const dark=selTheme==='noir'||selTheme==='cyberpunk'||selTheme==='spazio';
+    const dark=['noir','cyberpunk','spazio'].includes(selTheme);
     doc.setFillColor(...(dark?[10,10,26]:[255,255,255])); doc.rect(0,0,w,h,'F');
     const page=genPages[i];
     if(page.imgUrl){
       try{
-        let d=page.imgUrl;
-        if(!d.startsWith('data:')) d=await toB64(d);
+        let d=page.imgUrl; if(!d.startsWith('data:')) d=await toB64(d);
         if(page.imgLayout==='full') doc.addImage(d,'JPEG',0,0,w,h);
         else if(page.imgLayout==='top') doc.addImage(d,'JPEG',0,0,w,h*.55);
-        else doc.addImage(d,'JPEG',0,h*.45,w,h*.55);
+        else if(page.imgLayout==='bottom') doc.addImage(d,'JPEG',0,h*.45,w,h*.55);
+        else if(page.type==='cover') doc.addImage(d,'JPEG',0,0,w,h);
       }catch{}
     }
     doc.setTextColor(...(dark?[210,210,240]:[30,30,30]));
@@ -813,32 +715,16 @@ async function exportPDF(){
       if(page.title){doc.setFontSize(10);doc.setFont('helvetica','bold');doc.text(page.title,14,ty,{maxWidth:w-28});}
       if(page.text){doc.setFontSize(9);doc.setFont('helvetica','normal');doc.text(page.text,14,ty+(page.title?10:0),{maxWidth:w-28});}
     }
-    doc.setFontSize(7);doc.setTextColor(150,150,150);doc.text(`${i+1}`,w-8,h-6);
+    doc.setFontSize(7);doc.setTextColor(150,150,150);doc.text(`${i+1}`,w-7,h-5);
   }
   doc.save((document.getElementById('book-title').value||'storybook').replace(/\s+/g,'_')+'.pdf');
 }
-async function toB64(url){
-  const r=await fetch(url);const b=await r.blob();
-  return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=rej;fr.readAsDataURL(b);});
-}
+async function toB64(url){const r=await fetch(url);const b=await r.blob();return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=rej;fr.readAsDataURL(b);});}
 
-// ── HELPERS ───────────────────────────────────────────
-function showProg(v){
-  document.getElementById('prog').classList.toggle('show',v);
-  if(v){document.getElementById('plog').innerHTML='';document.getElementById('pbar').style.width='0%';}
-}
-function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),4000);
-}
+function showProg(v){document.getElementById('prog').classList.toggle('show',v);if(v){document.getElementById('plog').innerHTML='';document.getElementById('pbar').style.width='0%';}}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function clearAll(){
-  genPages=[];
-  document.getElementById('pgrid').innerHTML=`<div class="empty-state"><div class="icon">📖</div><p>Storybook resettato. Pronto per una nuova storia!</p></div>`;
-  document.getElementById('prev-info').textContent='Genera il tuo storybook';
-  showProg(false);
-}
+function clearAll(){genPages=[];document.getElementById('pgrid').innerHTML=`<div class="empty-state"><div class="icon">📖</div><p>Storybook resettato!</p></div>`;document.getElementById('prev-info').textContent='';showProg(false);}
 </script>
-<script src="https://js.puter.com/v2/"></script>
 </body>
 </html>
