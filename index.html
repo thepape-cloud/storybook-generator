@@ -404,15 +404,24 @@ function setMode(m){
 
 // ── INIT ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
-  // Check Puter.js ready
-  const checkPuter = setInterval(()=>{
-    const st = document.getElementById('puter-status');
+  // Auto-login with temp user — no popup needed
+  const checkPuter = setInterval(async ()=>{
     if(typeof puter !== 'undefined'){
       clearInterval(checkPuter);
-      if(st) st.textContent = '✅ Puter pronto';
-      setTimeout(()=>{ if(st) st.style.display='none'; }, 3000);
+      const st = document.getElementById('puter-status');
+      try{
+        if(!puter.auth.isSignedIn()){
+          await puter.auth.signIn({attempt_temp_user_creation: true});
+        }
+        if(st){ st.textContent='✅ Pronto'; st.style.color='var(--green)'; }
+        setTimeout(()=>{ if(st) st.style.display='none'; },3000);
+      }catch(e){
+        // Will sign in on first use automatically
+        if(st){ st.textContent='⚡ Pronto'; st.style.color='var(--gold)'; }
+        setTimeout(()=>{ if(st) st.style.display='none'; },3000);
+      }
     }
-  }, 500);
+  },300);
   document.getElementById('tgrid').addEventListener('click',e=>{
     const b=e.target.closest('.tbtn'); if(!b) return;
     document.querySelectorAll('.tbtn').forEach(x=>x.classList.remove('active'));
