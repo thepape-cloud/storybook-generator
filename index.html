@@ -160,6 +160,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;heigh
   <div class="header-left">
     <span>📚</span>
     <h1>Storybook Generator</h1>
+    <span id="puter-status" style="font-size:11px;color:var(--muted);margin-left:4px">⏳ caricamento...</span>
   </div>
   <div class="mode-toggle">
     <button class="mode-btn active" id="btn-free" onclick="setMode('free')">✨ Free</button>
@@ -403,6 +404,15 @@ function setMode(m){
 
 // ── INIT ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
+  // Check Puter.js ready
+  const checkPuter = setInterval(()=>{
+    const st = document.getElementById('puter-status');
+    if(typeof puter !== 'undefined'){
+      clearInterval(checkPuter);
+      if(st) st.textContent = '✅ Puter pronto';
+      setTimeout(()=>{ if(st) st.style.display='none'; }, 3000);
+    }
+  }, 500);
   document.getElementById('tgrid').addEventListener('click',e=>{
     const b=e.target.closest('.tbtn'); if(!b) return;
     document.querySelectorAll('.tbtn').forEach(x=>x.classList.remove('active'));
@@ -458,8 +468,11 @@ async function generate(){
   const title=document.getElementById('book-title').value.trim()||'Il mio Storybook';
   if(!plot){showToast('Inserisci la trama!'); return;}
 
-  if(mode==='free'){
-    // Puter.js handles auth automatically - no keys needed
+  if(mode==='free' && typeof puter === 'undefined'){
+    showToast('Puter.js sta ancora caricando, riprova tra 2 secondi');
+    isGen=false;
+    document.getElementById('gen-btn').disabled=false;
+    return;
   }
   if(mode==='pro'){
     if(tProv==='gemini'&&!document.getElementById('gemini-key').value.trim()){showToast('Inserisci chiave Gemini'); return;}
@@ -566,9 +579,9 @@ RISPONDI SOLO con JSON: [{"scene":"...","prompt":"..."},...]`;
 // ── TEXT ──────────────────────────────────────────────
 async function callText(prompt){
   if(mode==='free'){
+    if(typeof puter === 'undefined') throw new Error('Puter.js non ancora caricato, riprova tra 2 secondi');
     const model = document.getElementById('puter-txt-model').value;
     const resp = await puter.ai.chat(prompt, {model});
-    // Puter can return string or object
     if(typeof resp === 'string') return resp;
     return resp?.message?.content || resp?.text || resp?.content?.[0]?.text || JSON.stringify(resp);
   }
