@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>📚 Storybook Generator</title>
+<script src="https://js.puter.com/v2/"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -154,14 +155,50 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 <header>
   <span>📚</span>
   <h1>Storybook Generator</h1>
-  <span style="font-size:11px;color:var(--muted)">Clicca le pagine per modificarle</span>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span id="puter-status" style="font-size:11px;color:var(--muted)"></span>
+    <div style="display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+      <button class="mode-btn active" id="btn-free" onclick="setMode('free')" style="padding:6px 14px;font-size:12px;font-family:var(--font-b);font-weight:500;cursor:pointer;border:none;background:var(--gold);color:#0f0e0c;transition:all .2s">✨ Free</button>
+      <button class="mode-btn" id="btn-pro" onclick="setMode('pro')" style="padding:6px 14px;font-size:12px;font-family:var(--font-b);font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all .2s">⚡ Pro (API Keys)</button>
+    </div>
+  </div>
 </header>
 
 <div class="app">
 <aside class="sidebar">
 
-  <!-- TESTO -->
-  <div>
+  <!-- FREE MODE -->
+  <div id="free-section">
+    <div class="sec">🆓 Modalità gratuita — Puter.js</div>
+    <div style="margin-top:8px;background:rgba(76,175,130,0.08);border:1px solid rgba(76,175,130,0.2);border-radius:var(--radius);padding:11px;font-size:12px;color:var(--green);line-height:1.6">
+      <strong>Zero chiavi, zero costi!</strong><br>
+      Al primo utilizzo apre un popup Puter (account gratuito in 30 sec).<br>
+      Testo: GPT-4o · Claude · Gemini<br>
+      Immagini: DALL-E · Flux · SD
+    </div>
+    <div class="two" style="margin-top:10px">
+      <div class="field">
+        <label>Modello testo</label>
+        <select id="puter-txt">
+          <option value="gpt-4o-mini">GPT-4o Mini</option>
+          <option value="gpt-4o">GPT-4o</option>
+          <option value="claude-3-5-sonnet">Claude 3.5</option>
+          <option value="gemini-1.5-flash">Gemini Flash</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Modello immagini</label>
+        <select id="puter-img">
+          <option value="dall-e-3">DALL-E 3</option>
+          <option value="flux-schnell">Flux Schnell</option>
+          <option value="stable-diffusion-xl-base">SD XL</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRO MODE -->
+  <div id="pro-section" style="display:none">
     <div class="sec">✍️ Motore testo</div>
     <div class="tabs" style="margin-top:8px" id="ttabs">
       <button class="tab active" onclick="swT('groq',this)">Groq <span class="badge bf">Free</span></button>
@@ -215,8 +252,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     </div>
   </div>
 
-  <!-- IMMAGINI -->
-  <div>
+  <!-- IMMAGINI PRO -->
+  <div id="pro-img-section" style="display:none">
     <div class="sec">🖼 Motore immagini</div>
     <div class="tabs" style="margin-top:8px" id="itabs">
       <button class="tab active" onclick="swI('together',this)">Together <span class="badge bf">$1 free</span></button>
@@ -388,6 +425,18 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 let selTheme='bimbi', selColor='#ffb347';
 let scenes=[], genPages=[], isGen=false;
 let tProv='groq', iProv='together';
+let mode='free';
+
+function setMode(m){
+  mode=m;
+  document.getElementById('btn-free').style.background=m==='free'?'var(--gold)':'transparent';
+  document.getElementById('btn-free').style.color=m==='free'?'#0f0e0c':'var(--muted)';
+  document.getElementById('btn-pro').style.background=m==='pro'?'var(--gold)':'transparent';
+  document.getElementById('btn-pro').style.color=m==='pro'?'#0f0e0c':'var(--muted)';
+  document.getElementById('free-section').style.display=m==='free'?'block':'none';
+  document.getElementById('pro-section').style.display=m==='pro'?'block':'none';
+  document.getElementById('pro-img-section').style.display=m==='pro'?'block':'none';
+}
 
 const THEMES={
   bimbi:"children's book illustration, soft watercolor, cute round characters, pastel colors, gentle outlines, playful warm, simple shapes",
@@ -405,6 +454,20 @@ const THEMES={
 const TCSS={bimbi:'theme-bimbi',fiaba:'theme-fiaba',fantasy:'theme-fantasy',spazio:'theme-spazio',dino:'theme-dino',oceano:'theme-oceano',anime:'theme-anime',cyberpunk:'theme-cyberpunk',noir:'theme-noir',natale:'theme-natale',custom:''};
 
 document.addEventListener('DOMContentLoaded',()=>{
+  // Puter ready check
+  let checks=0;
+  const chk=setInterval(()=>{
+    checks++;
+    const st=document.getElementById('puter-status');
+    if(typeof puter!=='undefined'&&puter.ai){
+      clearInterval(chk);
+      if(st){st.textContent='✅ Puter pronto';st.style.color='var(--green)';}
+      setTimeout(()=>{if(st)st.style.display='none';},3000);
+    } else if(checks>30){
+      clearInterval(chk);
+      if(st){st.textContent='⚠️ Puter non disponibile — usa Pro';st.style.color='var(--amber)';}
+    }
+  },400);
   document.getElementById('tgrid').addEventListener('click',e=>{
     const b=e.target.closest('.tbtn'); if(!b) return;
     document.querySelectorAll('.tbtn').forEach(x=>x.classList.remove('active'));
@@ -466,12 +529,16 @@ async function generate(){
 
   const keys={groq:document.getElementById('groq-key').value.trim(),gemini:document.getElementById('gemini-key').value.trim(),claude:document.getElementById('claude-key').value.trim(),together:document.getElementById('together-key').value.trim(),stability:document.getElementById('stability-key').value.trim(),openai:document.getElementById('openai-key').value.trim()};
 
-  if(tProv==='groq'&&!keys.groq){showToast('Inserisci chiave Groq (gratuita su console.groq.com)'); return;}
-  if(tProv==='gemini'&&!keys.gemini){showToast('Inserisci chiave Gemini (gratuita su aistudio.google.com)'); return;}
-  if(tProv==='claude'&&!keys.claude){showToast('Inserisci chiave Claude'); return;}
-  if(iProv==='together'&&!keys.together){showToast('Inserisci chiave Together AI ($1 gratis su api.together.xyz)'); return;}
-  if(iProv==='stability'&&!keys.stability){showToast('Inserisci chiave Stability AI'); return;}
-  if(iProv==='dalle'&&!keys.openai){showToast('Inserisci chiave OpenAI'); return;}
+  if(mode==='free'){
+    if(typeof puter==='undefined'||!puter.ai){showToast('Puter.js non ancora pronto — aspetta ✅ Puter pronto'); isGen=false; document.getElementById('gen-btn').disabled=false; return;}
+  } else {
+    if(tProv==='groq'&&!keys.groq){showToast('Inserisci chiave Groq'); return;}
+    if(tProv==='gemini'&&!keys.gemini){showToast('Inserisci chiave Gemini'); return;}
+    if(tProv==='claude'&&!keys.claude){showToast('Inserisci chiave Claude'); return;}
+    if(iProv==='together'&&!keys.together){showToast('Inserisci chiave Together AI'); return;}
+    if(iProv==='stability'&&!keys.stability){showToast('Inserisci chiave Stability AI'); return;}
+    if(iProv==='dalle'&&!keys.openai){showToast('Inserisci chiave OpenAI'); return;}
+  }
 
   isGen=true; genPages=[];
   document.getElementById('gen-btn').disabled=true;
@@ -560,11 +627,30 @@ RISPONDI SOLO con JSON array, nient'altro:
 }
 
 async function callText(prompt){
+  if(mode==='free'){
+    const model=document.getElementById('puter-txt').value;
+    const resp=await puter.ai.chat(prompt,{model});
+    if(typeof resp==='string') return resp;
+    return resp?.message?.content||resp?.text||resp?.content?.[0]?.text||JSON.stringify(resp);
+  }
   if(tProv==='groq') return callGroq(document.getElementById('groq-key').value.trim(),prompt);
   if(tProv==='gemini') return callGemini(document.getElementById('gemini-key').value.trim(),prompt);
   if(tProv==='claude') return callClaude(document.getElementById('claude-key').value.trim(),prompt);
 }
-async function callGroq(k,p){
+
+async function genImg(prompt,keys){
+  if(mode==='free'){
+    const model=document.getElementById('puter-img').value;
+    const resp=await puter.ai.txt2img(prompt,{model});
+    if(resp instanceof HTMLImageElement) return resp.src;
+    if(resp instanceof Blob) return URL.createObjectURL(resp);
+    if(typeof resp==='string') return resp;
+    return resp?.src||resp?.url||null;
+  }
+  if(iProv==='together') return genTogether(keys.together,prompt);
+  if(iProv==='stability') return genStability(keys.stability,prompt);
+  if(iProv==='dalle') return genDalle(keys.openai,prompt);
+}async function callGroq(k,p){
   const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:4000,messages:[{role:'user',content:p}]})});
   if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'Groq error '+r.status);}
   return (await r.json()).choices?.[0]?.message?.content||'';
@@ -580,11 +666,6 @@ async function callClaude(k,p){
   return (await r.json()).content?.[0]?.text||'';
 }
 
-async function genImg(prompt,keys){
-  if(iProv==='together') return genTogether(keys.together,prompt);
-  if(iProv==='stability') return genStability(keys.stability,prompt);
-  if(iProv==='dalle') return genDalle(keys.openai,prompt);
-}
 async function genTogether(k,p){
   const r=await fetch('https://api.together.xyz/v1/images/generations',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:'black-forest-labs/FLUX.1-schnell-Free',prompt:p.slice(0,1000),width:1024,height:1024,steps:4,n:1})});
   if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'Together error '+r.status);}
