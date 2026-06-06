@@ -624,6 +624,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
   document.getElementById('font-size')?.addEventListener('change',e=>selFontSize=e.target.value);
   document.getElementById('font-style')?.addEventListener('change',e=>selFontStyle=e.target.value);
+  const pr=document.getElementById('prange');
+  const ir=document.getElementById('irange');
   pr.addEventListener('input',()=>{
     document.getElementById('pval').textContent=pr.value;
     if(parseInt(ir.value)>parseInt(pr.value)){ir.value=pr.value;document.getElementById('ival').textContent=pr.value;}
@@ -691,7 +693,7 @@ async function generate(){
   const totalP=parseInt(document.getElementById('prange').value);
   const totalI=parseInt(document.getElementById('irange').value);
   const lang=document.getElementById('language').value;
-  const layout=document.getElementById('ilayout').value;
+  const layout=selLayoutMode; // usa la selezione visiva
   const themeStyle=selTheme==='custom'?(document.getElementById('custom-theme').value||'illustrative art'):THEMES[selTheme];
 
   let step=0; const tot=2+totalI+1;
