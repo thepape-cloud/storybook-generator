@@ -1031,11 +1031,13 @@ async function exportPDF(){
       // Wait for reflow
       await new Promise(r=>setTimeout(r,80));
 
+      const cardBg = window.getComputedStyle(card).backgroundColor || '#ffffff';
+
       const canvas=await html2canvas(card,{
         scale:2,
         useCORS:true,
         allowTaint:true,
-        backgroundColor:null,
+        backgroundColor: cardBg,
         logging:false,
         width:renderW,
         height:renderH,
