@@ -831,7 +831,11 @@ RISPONDI SOLO con JSON valido, nient'altro:
       const lbl=page.type==='cover'?'Copertina':'Immagine p.'+(i+1);
       log(lbl+'...');
       try{
-        const url=await callImage(page.imgPrompt);
+        let url=await callImage(page.imgPrompt);
+        // Convert HTTP URLs to base64 immediately — they expire quickly (Together, DALL-E)
+        if(url&&url.startsWith('http')){
+          try{ url=await urlToBase64(url); }catch(e){ /* keep original if fetch fails */ }
+        }
         genPages[i].imgUrl=url;
         if(page.type==='cover') updateCoverImg(i,url);
         else updatePageImg(i,url);
@@ -943,6 +947,19 @@ async function imgElToB64(imgEl){
 async function blobToB64(url){
   const r=await fetch(url); const b=await r.blob();
   return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=rej;fr.readAsDataURL(b);});
+}
+
+// Convert any HTTP image URL to base64 data URI (prevents expiry issues with Together/DALL-E)
+async function urlToBase64(url){
+  const r=await fetch(url,{mode:'cors'});
+  if(!r.ok) throw new Error('fetch '+r.status);
+  const blob=await r.blob();
+  return new Promise(function(res,rej){
+    const fr=new FileReader();
+    fr.onload=function(){res(fr.result);};
+    fr.onerror=rej;
+    fr.readAsDataURL(blob);
+  });
 }
 
 async function callTogether(k,p){
@@ -1173,9 +1190,18 @@ async function exportPDF(){
       return new Promise(function(res){
         if(!url){res(null);return;}
         const img=new Image();
-        img.crossOrigin='anonymous';
+        // data URIs don't need CORS; http URLs do (may taint canvas)
+        if(!url.startsWith('data:')){img.crossOrigin='anonymous';}
         img.onload=function(){res(img);};
-        img.onerror=function(){res(null);};
+        img.onerror=function(){
+          // Retry without crossOrigin (some CDNs block CORS headers)
+          if(img.crossOrigin){
+            const img2=new Image();
+            img2.onload=function(){res(img2);};
+            img2.onerror=function(){res(null);};
+            img2.src=url;
+          } else {res(null);}
+        };
         img.src=url;
       });
     }
@@ -1348,41 +1374,48 @@ async function exportPDF(){
           const tbx=IX; const tby=actualTxtY;
           const tbw=IW; const tbh=txtBoxH;
           const tbr=Math.round(10*SC);
-          const tp=Math.round(16*SC);
+          const HPAD=Math.round(20*SC); // horizontal padding inside box
+          const VPAD=Math.round(14*SC); // vertical padding
 
-          // Colored box background
+          // Background
           roundRect(ctx,tbx,tby,tbw,tbh,tbr);
           ctx.fillStyle=accentAlpha(0.12); ctx.fill();
-          // Accent left bar
-          ctx.fillStyle=accentHex;
-          roundRect(ctx,tbx,tby,Math.round(5*SC),tbh,Math.round(3*SC));
-          ctx.fill();
+          // Accent top bar (thin stripe along top edge)
+          roundRect(ctx,tbx,tby,tbw,Math.round(4*SC),tbr);
+          ctx.fillStyle=accentHex; ctx.fill();
 
-          // Chapter label (small caps, left aligned)
-          var textCursorY=tby+tp;
+          // Content area starts below top stripe
+          var curY=tby+Math.round(4*SC)+VPAD;
+          const contentW=tbw-HPAD*2;
+          const cx=tbx+tbw/2; // center X for all text
+
+          // Chapter label — centered, small caps style
           if(page.title){
             ctx.fillStyle=accentDark;
-            ctx.font=`bold ${Math.round(9*SC)}px 'DM Sans',sans-serif`;
-            ctx.textAlign='left';
-            ctx.fillText((page.title||'').toUpperCase(),tbx+tp+Math.round(8*SC),textCursorY+Math.round(9*SC));
-            textCursorY+=Math.round(22*SC);
+            ctx.font=`bold ${Math.round(8.5*SC)}px 'DM Sans',sans-serif`;
+            ctx.textAlign='center';
+            ctx.fillText((page.title||'').toUpperCase(),cx,curY+Math.round(9*SC));
+            // Separator line
+            curY+=Math.round(18*SC);
+            ctx.beginPath();
+            ctx.moveTo(tbx+HPAD,curY); ctx.lineTo(tbx+tbw-HPAD,curY);
+            ctx.strokeStyle=accentAlpha(0.3); ctx.lineWidth=Math.round(1*SC);
+            ctx.stroke();
+            curY+=Math.round(10*SC);
           }
+
           // Body text — centered
           if(page.text){
-            const bodyFs=selFontSize==='small'?Math.round(10*SC):selFontSize==='large'?Math.round(14*SC):Math.round(11.5*SC);
+            const bodyFs=selFontSize==='small'?Math.round(10*SC):selFontSize==='large'?Math.round(14*SC):Math.round(12*SC);
             ctx.font=`${bodyFs}px 'DM Sans',sans-serif`;
             ctx.fillStyle=dark?'#e0e0e0':selTextColor||'#1a1a1a';
             ctx.textAlign='center';
-            const maxW=tbw-tp*2-Math.round(12*SC);
-            const lines=wrapText(ctx,page.text,maxW);
-            const lh=bodyFs*1.55;
-            // Vertically center remaining lines in remaining space
-            const remainH=tby+tbh-textCursorY-tp;
+            const lines=wrapText(ctx,page.text,contentW);
+            const lh=bodyFs*1.6;
+            const remainH=(tby+tbh-VPAD)-curY;
             const blockH=lines.length*lh;
-            const startY=textCursorY+(remainH-blockH)/2+lh*0.8;
-            lines.forEach(function(l,li){
-              ctx.fillText(l,tbx+tbw/2,startY+li*lh);
-            });
+            const startY=curY+(remainH-blockH)/2+lh*0.75;
+            lines.forEach(function(l,li){ctx.fillText(l,cx,startY+li*lh);});
           }
         }
 
