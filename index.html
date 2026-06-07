@@ -279,8 +279,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
         <div class="key-row">
           <span class="key-icon">🎨</span>
           <div class="key-info">
-            <div class="kname">Together AI — Flux Schnell <span class="badge bf">$1 gratis</span></div>
-            <div class="kdesc">~20 immagini gratis · Stabile</div>
+            <div class="kname">Together AI — Flux / SDXL <span class="badge bf">$1 gratis</span></div>
+            <div class="kdesc">Auto-seleziona modello disponibile</div>
             <a class="key-link" href="https://api.together.xyz/settings/api-keys" target="_blank">➜ Ottieni $1 gratis</a>
           </div>
           <div class="key-dot" id="kd-together"></div>
@@ -946,11 +946,34 @@ async function blobToB64(url){
 }
 
 async function callTogether(k,p){
-  const r=await fetch('https://api.together.xyz/v1/images/generations',{method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
-    body:JSON.stringify({model:'black-forest-labs/FLUX.1-schnell-Free',prompt:p.slice(0,1000),width:1024,height:1024,steps:4,n:1})});
-  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'Together '+r.status);}
-  return (await r.json()).data?.[0]?.url||null;
+  // Try models in order of availability — free tier changes over time
+  const models=[
+    'black-forest-labs/FLUX.1-schnell',
+    'stabilityai/stable-diffusion-xl-base-1.0',
+    'runwayml/stable-diffusion-v1-5'
+  ];
+  for(var mi=0;mi<models.length;mi++){
+    try{
+      const r=await fetch('https://api.together.xyz/v1/images/generations',{method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+        body:JSON.stringify({model:models[mi],prompt:p.slice(0,1000),width:1024,height:1024,steps:4,n:1})});
+      if(r.ok){
+        const j=await r.json();
+        const url=j.data?.[0]?.url||j.data?.[0]?.b64_json;
+        if(url) return url.startsWith('http')?url:'data:image/png;base64,'+url;
+      }
+      const err=await r.json().catch(()=>({}));
+      // If not a "model unavailable" error, throw immediately
+      const msg=(err?.error?.message||'').toLowerCase();
+      if(!msg.includes('dedicated')&&!msg.includes('serverless')&&!msg.includes('unavailable')&&r.status!==422){
+        throw new Error(err?.error?.message||'Together '+r.status);
+      }
+      // Otherwise try next model
+    }catch(e){
+      if(mi===models.length-1) throw e;
+    }
+  }
+  throw new Error('Nessun modello Together AI disponibile — controlla la chiave o usa Stability AI');
 }
 async function callStability(k,p){
   const f=new FormData(); f.append('prompt',p.slice(0,2000)); f.append('output_format','jpeg');
@@ -1264,17 +1287,40 @@ async function exportPDF(){
         const lay=page.imgLayout&&page.imgLayout!=='none'?page.imgLayout:'top';
         const hasText=!!(page.title||page.text);
 
-        // Text box height — fixed proportion
-        const txtBoxH=hasText?Math.round(IH*0.32):0;
-        const imgAreaH=IH-txtBoxH-(hasText?Math.round(8*SC):0);
+        // ── Measure text box height dynamically ──
+        var txtBoxH=0;
+        if(hasText&&lay!=='full'){
+          // estimate lines needed
+          const bodyFs=selFontSize==='small'?Math.round(10*SC):selFontSize==='large'?Math.round(14*SC):Math.round(11.5*SC);
+          ctx.font=`${bodyFs}px 'DM Sans',sans-serif`;
+          const maxW=IW-Math.round(48*SC);
+          const bodyLines=page.text?wrapText(ctx,page.text,maxW):[];
+          const lh=bodyFs*1.55;
+          const titleH=page.title?Math.round(22*SC):0;
+          const innerPad=Math.round(20*SC);
+          txtBoxH=Math.max(
+            Math.round(IH*0.20),                          // minimum 20%
+            Math.round(titleH+bodyLines.length*lh+innerPad*2+Math.round(8*SC))
+          );
+          txtBoxH=Math.min(txtBoxH,Math.round(IH*0.38)); // cap at 38%
+        }
 
-        const imgY=lay==='bottom'?(IY):(IY);
-        const txtY=lay==='bottom'?(IY+imgAreaH+Math.round(8*SC)):(IY+imgAreaH+Math.round(8*SC));
+        const GAP=hasText&&lay!=='full'?Math.round(8*SC):0;
+        const imgAreaH=lay==='full'||!hasText ? IH : IH-txtBoxH-GAP;
 
-        // Always image on top for 'top'/'full', bottom for 'bottom'
-        const actualImgY=(lay==='bottom'&&hasText)?(IY+txtBoxH+Math.round(8*SC)):IY;
-        const actualTxtY=(lay==='bottom'&&hasText)?IY:(IY+imgAreaH+Math.round(8*SC));
-        const actualImgH=(lay==='full'||!hasText)?IH:imgAreaH;
+        // Positions depend on layout
+        var actualImgY,actualTxtY,actualImgH;
+        if(lay==='bottom'&&hasText){
+          // text on top, image on bottom
+          actualTxtY=IY;
+          actualImgY=IY+txtBoxH+GAP;
+          actualImgH=imgAreaH;
+        } else {
+          // image on top (lay==='top' or 'full')
+          actualImgY=IY;
+          actualImgH=imgAreaH;
+          actualTxtY=IY+imgAreaH+GAP;
+        }
 
         // ── Image area ──
         if(imgEl){
@@ -1283,18 +1329,18 @@ async function exportPDF(){
           ctx.clip();
           const ir=imgEl.width/imgEl.height;
           const cr=IW/actualImgH;
-          let dx,dy,dw,dh;
+          var dx,dy,dw,dh;
           if(ir>cr){dh=actualImgH;dw=dh*ir;dx=IX+(IW-dw)/2;dy=actualImgY;}
           else{dw=IW;dh=dw/ir;dx=IX;dy=actualImgY+(actualImgH-dh)/2;}
           ctx.drawImage(imgEl,dx,dy,dw,dh);
           ctx.restore();
-        } else if(lay!=='full'){
+        } else {
           ctx.fillStyle=accentAlpha(0.08);
           roundRect(ctx,IX,actualImgY,IW,actualImgH,Math.round(10*SC));
           ctx.fill();
           ctx.fillStyle=accentAlpha(0.3); ctx.textAlign='center';
-          ctx.font=`${Math.round(12*SC)}px sans-serif`;
-          ctx.fillText('⏳',IX+IW/2,actualImgY+actualImgH/2);
+          ctx.font=`${Math.round(14*SC)}px sans-serif`;
+          ctx.fillText('🖼',IX+IW/2,actualImgY+actualImgH/2);
         }
 
         // ── Text box ──
@@ -1302,24 +1348,26 @@ async function exportPDF(){
           const tbx=IX; const tby=actualTxtY;
           const tbw=IW; const tbh=txtBoxH;
           const tbr=Math.round(10*SC);
+          const tp=Math.round(16*SC);
 
           // Colored box background
           roundRect(ctx,tbx,tby,tbw,tbh,tbr);
           ctx.fillStyle=accentAlpha(0.12); ctx.fill();
           // Accent left bar
           ctx.fillStyle=accentHex;
-          roundRect(ctx,tbx,tby,Math.round(5*SC),tbh,Math.round(2*SC));
+          roundRect(ctx,tbx,tby,Math.round(5*SC),tbh,Math.round(3*SC));
           ctx.fill();
 
-          const tp=Math.round(12*SC);
-          // Chapter label
+          // Chapter label (small caps, left aligned)
+          var textCursorY=tby+tp;
           if(page.title){
             ctx.fillStyle=accentDark;
             ctx.font=`bold ${Math.round(9*SC)}px 'DM Sans',sans-serif`;
             ctx.textAlign='left';
-            ctx.fillText((page.title||'').toUpperCase(),tbx+tp+Math.round(8*SC),tby+tp+Math.round(9*SC));
+            ctx.fillText((page.title||'').toUpperCase(),tbx+tp+Math.round(8*SC),textCursorY+Math.round(9*SC));
+            textCursorY+=Math.round(22*SC);
           }
-          // Body text
+          // Body text — centered
           if(page.text){
             const bodyFs=selFontSize==='small'?Math.round(10*SC):selFontSize==='large'?Math.round(14*SC):Math.round(11.5*SC);
             ctx.font=`${bodyFs}px 'DM Sans',sans-serif`;
@@ -1328,9 +1376,12 @@ async function exportPDF(){
             const maxW=tbw-tp*2-Math.round(12*SC);
             const lines=wrapText(ctx,page.text,maxW);
             const lh=bodyFs*1.55;
-            const textStartY=tby+(page.title?(tp+Math.round(20*SC)):(tbh/2-lines.length*lh/2));
+            // Vertically center remaining lines in remaining space
+            const remainH=tby+tbh-textCursorY-tp;
+            const blockH=lines.length*lh;
+            const startY=textCursorY+(remainH-blockH)/2+lh*0.8;
             lines.forEach(function(l,li){
-              ctx.fillText(l,tbx+tbw/2,textStartY+li*lh);
+              ctx.fillText(l,tbx+tbw/2,startY+li*lh);
             });
           }
         }
