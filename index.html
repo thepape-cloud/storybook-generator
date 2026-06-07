@@ -1089,68 +1089,303 @@ function updateCoverImg(idx,url){
   if(cs) cs.style.cssText='color:rgba(255,255,255,0.85)';
 }
 
-// ── PDF EXPORT ────────────────────────────────────────────
+// ── PDF EXPORT — canvas-first renderer ────────────────────
 async function exportPDF(){
   if(!genPages.length){showToast('Genera prima lo storybook!'); return;}
   const btn=document.getElementById('pdf-btn');
   btn.disabled=true; btn.textContent='⏳ In corso...';
-
-  // Off-screen container for clones — never mutates live cards
-  const offWrap=document.createElement('div');
-  offWrap.style.cssText='position:fixed;left:-9999px;top:0;pointer-events:none;z-index:-1;overflow:hidden';
-  document.body.appendChild(offWrap);
-
   try{
     const {jsPDF}=window.jspdf;
     const fmt=document.getElementById('format').value;
-    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:fmt==='A5'?'a5':fmt==='square'?[200,200]:'a4'});
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',
+      format:fmt==='A5'?'a5':fmt==='square'?[200,200]:'a4'});
     const pdfW=doc.internal.pageSize.getWidth();
     const pdfH=doc.internal.pageSize.getHeight();
-    const ratio=pdfH/pdfW;
-    const renderW=900;
-    const renderH=Math.round(renderW*ratio);
 
-    const cards=document.querySelectorAll('#pgrid .pc');
-    for(let i=0;i<cards.length;i++){
-      if(i>0) doc.addPage();
-      const card=cards[i];
-      const cardBg=window.getComputedStyle(card).backgroundColor||'#ffffff';
+    // Canvas render size (2× for sharpness)
+    const SC=2;
+    const CW=Math.round(595*SC); // A4 ~595pt wide
+    const CH=Math.round(CW*(pdfH/pdfW));
 
-      // Clone into isolated container with exact target dimensions
-      const clone=card.cloneNode(true);
-      // Remove edit overlays from clone
-      clone.querySelectorAll('.eo').forEach(function(e){e.remove();});
-      // Apply exact render size — no aspect-ratio so content fills correctly
-      clone.style.cssText='width:'+renderW+'px;height:'+renderH+'px;min-height:'+renderH+'px;aspect-ratio:unset;position:relative;display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;';
-      // Fix percentage-height image wrappers to explicit pixels
-      clone.querySelectorAll('.pimg-wrap').forEach(function(w){
-        var pct=parseFloat(w.style.height)||52;
-        w.style.height=Math.round(renderH*(pct/100))+'px';
-        w.style.flexShrink='0';
-      });
-      offWrap.innerHTML='';
-      offWrap.style.width=renderW+'px';
-      offWrap.style.height=renderH+'px';
-      offWrap.appendChild(clone);
+    const dark=DARK_THEMES.includes(selTheme);
 
-      // Let browser paint the clone
-      await new Promise(function(r){setTimeout(r,120);});
-
-      const canvas=await html2canvas(clone,{
-        scale:2, useCORS:true, allowTaint:true,
-        backgroundColor:cardBg, logging:false,
-        width:renderW, height:renderH, imageTimeout:30000,
-        windowWidth:renderW, windowHeight:renderH
-      });
-      doc.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',0,0,pdfW,pdfH);
+    // ── Resolve accent color ──
+    const accentHex=selColor||'#ffb347';
+    function parseHex(h){
+      const c=h.replace('#','');
+      return [parseInt(c.slice(0,2),16),parseInt(c.slice(2,4),16),parseInt(c.slice(4,6),16)];
     }
+    const [ar,ag,ab]=parseHex(accentHex);
+    function accentAlpha(a){return `rgba(${ar},${ag},${ab},${a})`;}
+
+    // Darken accent for text readability
+    function darkenHex(h,f){
+      const [r,g,b]=parseHex(h);
+      return `rgb(${Math.round(r*f)},${Math.round(g*f)},${Math.round(b*f)})`;
+    }
+    const accentDark=darkenHex(accentHex,0.65);
+
+    // ── Page background color ──
+    function getPageBgColor(){
+      if(selBg==='cream') return '#fdf8f0';
+      if(selBg==='light') return '#f0f4ff';
+      if(selBg==='colored') return accentAlpha(0.08);
+      if(dark) return (selTheme==='cyberpunk'?'#0a0a1a':selTheme==='spazio'?'#08091a':'#111');
+      return '#ffffff';
+    }
+
+    // ── Rounded rect helper ──
+    function roundRect(ctx,x,y,w,h,r){
+      ctx.beginPath();
+      ctx.moveTo(x+r,y);
+      ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+      ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+      ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+      ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r);
+      ctx.closePath();
+    }
+
+    // ── Load image as HTMLImageElement ──
+    function loadImg(url){
+      return new Promise(function(res){
+        if(!url){res(null);return;}
+        const img=new Image();
+        img.crossOrigin='anonymous';
+        img.onload=function(){res(img);};
+        img.onerror=function(){res(null);};
+        img.src=url;
+      });
+    }
+
+    // ── Wrap text into lines ──
+    function wrapText(ctx,text,maxW){
+      const words=text.split(' ');
+      const lines=[]; let line='';
+      for(let w of words){
+        const test=line?line+' '+w:w;
+        if(ctx.measureText(test).width>maxW&&line){lines.push(line);line=w;}
+        else{line=test;}
+      }
+      if(line) lines.push(line);
+      return lines;
+    }
+
+    // ── Draw a single page onto canvas ──
+    async function drawPage(page, idx){
+      const canvas=document.createElement('canvas');
+      canvas.width=CW; canvas.height=CH;
+      const ctx=canvas.getContext('2d');
+
+      const PAD=Math.round(24*SC);   // outer margin
+      const R=Math.round(22*SC);     // outer frame corner radius
+      const BORD=Math.round(5*SC);   // border thickness
+      const INNER_R=Math.round(16*SC);
+      const pageBg=getPageBgColor();
+
+      // ── 1. Page background (white canvas base) ──
+      ctx.fillStyle='#f5f0ea';
+      ctx.fillRect(0,0,CW,CH);
+
+      // ── 2. Colored border frame ──
+      ctx.strokeStyle=accentHex;
+      ctx.lineWidth=BORD;
+      roundRect(ctx,PAD,PAD,CW-PAD*2,CH-PAD*2,R);
+      ctx.stroke();
+
+      // ── 3. Inner page background ──
+      roundRect(ctx,PAD+BORD/2,PAD+BORD/2,CW-PAD*2-BORD,CH-PAD*2-BORD,INNER_R);
+      ctx.fillStyle=pageBg;
+      ctx.fill();
+
+      // Inner content bounds
+      const IX=PAD+BORD+Math.round(8*SC);
+      const IY=PAD+BORD+Math.round(8*SC);
+      const IW=CW-IX*2+PAD*2-BORD*2-Math.round(16*SC);
+      const IH=CH-IY*2+PAD*2-BORD*2-Math.round(16*SC);
+
+      // ── COVER ──
+      if(page.type==='cover'){
+        const imgEl=await loadImg(page.imgUrl);
+
+        // Header banner
+        const banH=Math.round(88*SC);
+        roundRect(ctx,IX,IY,IW,banH,Math.round(10*SC));
+        ctx.fillStyle=accentHex; ctx.fill();
+
+        // Title text in banner
+        ctx.fillStyle='#ffffff';
+        ctx.textAlign='center';
+        const titleFs=Math.round(22*SC);
+        ctx.font=`bold ${titleFs}px 'Playfair Display',Georgia,serif`;
+        const titleLines=wrapText(ctx,page.title||'',IW-Math.round(30*SC));
+        const lineH=Math.round(26*SC);
+        const titleY=IY+Math.round(28*SC);
+        titleLines.forEach(function(l,li){ctx.fillText(l,IX+IW/2,titleY+li*lineH);});
+
+        if(page.subtitle){
+          ctx.font=`${Math.round(11*SC)}px 'DM Sans',sans-serif`;
+          ctx.fillStyle='rgba(255,255,255,0.85)';
+          ctx.fillText(page.subtitle,IX+IW/2,IY+banH-Math.round(12*SC));
+        }
+
+        // Image area
+        const imgY=IY+banH+Math.round(8*SC);
+        const imgH=IH-banH-Math.round(8*SC);
+        if(imgEl){
+          ctx.save();
+          roundRect(ctx,IX,imgY,IW,imgH,Math.round(10*SC));
+          ctx.clip();
+          // letterbox/fill maintaining aspect
+          const ir=imgEl.width/imgEl.height;
+          const cr=IW/imgH;
+          let dx,dy,dw,dh;
+          if(ir>cr){dh=imgH;dw=dh*ir;dx=IX+(IW-dw)/2;dy=imgY;}
+          else{dw=IW;dh=dw/ir;dx=IX;dy=imgY+(imgH-dh)/2;}
+          ctx.drawImage(imgEl,dx,dy,dw,dh);
+          ctx.restore();
+        } else {
+          ctx.fillStyle=accentAlpha(0.1);
+          roundRect(ctx,IX,imgY,IW,imgH,Math.round(10*SC));
+          ctx.fill();
+          ctx.fillStyle=accentAlpha(0.4); ctx.textAlign='center';
+          ctx.font=`${Math.round(14*SC)}px sans-serif`;
+          ctx.fillText('🖼 Immagine copertina',IX+IW/2,imgY+imgH/2);
+        }
+
+        // Accent line at bottom
+        ctx.fillStyle=accentHex;
+        const footH=Math.round(6*SC);
+        roundRect(ctx,IX,IY+IH-footH,IW,footH,Math.round(3*SC));
+        ctx.fill();
+
+      // ── IMAGE PAGE ──
+      } else if(page.imgPrompt||page.type==='image'){
+        const imgEl=await loadImg(page.imgUrl);
+        const lay=page.imgLayout&&page.imgLayout!=='none'?page.imgLayout:'top';
+        const hasText=!!(page.title||page.text);
+
+        // Text box height — fixed proportion
+        const txtBoxH=hasText?Math.round(IH*0.32):0;
+        const imgAreaH=IH-txtBoxH-(hasText?Math.round(8*SC):0);
+
+        const imgY=lay==='bottom'?(IY):(IY);
+        const txtY=lay==='bottom'?(IY+imgAreaH+Math.round(8*SC)):(IY+imgAreaH+Math.round(8*SC));
+
+        // Always image on top for 'top'/'full', bottom for 'bottom'
+        const actualImgY=(lay==='bottom'&&hasText)?(IY+txtBoxH+Math.round(8*SC)):IY;
+        const actualTxtY=(lay==='bottom'&&hasText)?IY:(IY+imgAreaH+Math.round(8*SC));
+        const actualImgH=(lay==='full'||!hasText)?IH:imgAreaH;
+
+        // ── Image area ──
+        if(imgEl){
+          ctx.save();
+          roundRect(ctx,IX,actualImgY,IW,actualImgH,Math.round(10*SC));
+          ctx.clip();
+          const ir=imgEl.width/imgEl.height;
+          const cr=IW/actualImgH;
+          let dx,dy,dw,dh;
+          if(ir>cr){dh=actualImgH;dw=dh*ir;dx=IX+(IW-dw)/2;dy=actualImgY;}
+          else{dw=IW;dh=dw/ir;dx=IX;dy=actualImgY+(actualImgH-dh)/2;}
+          ctx.drawImage(imgEl,dx,dy,dw,dh);
+          ctx.restore();
+        } else if(lay!=='full'){
+          ctx.fillStyle=accentAlpha(0.08);
+          roundRect(ctx,IX,actualImgY,IW,actualImgH,Math.round(10*SC));
+          ctx.fill();
+          ctx.fillStyle=accentAlpha(0.3); ctx.textAlign='center';
+          ctx.font=`${Math.round(12*SC)}px sans-serif`;
+          ctx.fillText('⏳',IX+IW/2,actualImgY+actualImgH/2);
+        }
+
+        // ── Text box ──
+        if(hasText&&lay!=='full'){
+          const tbx=IX; const tby=actualTxtY;
+          const tbw=IW; const tbh=txtBoxH;
+          const tbr=Math.round(10*SC);
+
+          // Colored box background
+          roundRect(ctx,tbx,tby,tbw,tbh,tbr);
+          ctx.fillStyle=accentAlpha(0.12); ctx.fill();
+          // Accent left bar
+          ctx.fillStyle=accentHex;
+          roundRect(ctx,tbx,tby,Math.round(5*SC),tbh,Math.round(2*SC));
+          ctx.fill();
+
+          const tp=Math.round(12*SC);
+          // Chapter label
+          if(page.title){
+            ctx.fillStyle=accentDark;
+            ctx.font=`bold ${Math.round(9*SC)}px 'DM Sans',sans-serif`;
+            ctx.textAlign='left';
+            ctx.fillText((page.title||'').toUpperCase(),tbx+tp+Math.round(8*SC),tby+tp+Math.round(9*SC));
+          }
+          // Body text
+          if(page.text){
+            const bodyFs=selFontSize==='small'?Math.round(10*SC):selFontSize==='large'?Math.round(14*SC):Math.round(11.5*SC);
+            ctx.font=`${bodyFs}px 'DM Sans',sans-serif`;
+            ctx.fillStyle=dark?'#e0e0e0':selTextColor||'#1a1a1a';
+            ctx.textAlign='center';
+            const maxW=tbw-tp*2-Math.round(12*SC);
+            const lines=wrapText(ctx,page.text,maxW);
+            const lh=bodyFs*1.55;
+            const textStartY=tby+(page.title?(tp+Math.round(20*SC)):(tbh/2-lines.length*lh/2));
+            lines.forEach(function(l,li){
+              ctx.fillText(l,tbx+tbw/2,textStartY+li*lh);
+            });
+          }
+        }
+
+      // ── TEXT-ONLY PAGE ──
+      } else {
+        // Header strip with chapter title
+        const hdrH=page.title?Math.round(52*SC):0;
+        if(page.title){
+          roundRect(ctx,IX,IY,IW,hdrH,Math.round(10*SC));
+          ctx.fillStyle=accentAlpha(0.15); ctx.fill();
+          ctx.strokeStyle=accentHex; ctx.lineWidth=Math.round(2*SC);
+          roundRect(ctx,IX,IY,IW,hdrH,Math.round(10*SC)); ctx.stroke();
+          ctx.fillStyle=accentDark;
+          ctx.font=`bold ${Math.round(13*SC)}px 'Playfair Display',Georgia,serif`;
+          ctx.textAlign='center';
+          ctx.fillText(page.title,IX+IW/2,IY+hdrH/2+Math.round(5*SC));
+        }
+
+        // Body text
+        if(page.text){
+          const bodyFs=selFontSize==='small'?Math.round(12*SC):selFontSize==='large'?Math.round(17*SC):Math.round(14*SC);
+          ctx.font=`${bodyFs}px 'DM Sans',sans-serif`;
+          ctx.fillStyle=dark?'#e0e0e0':selTextColor||'#2a1a0a';
+          ctx.textAlign='center';
+          const maxW=IW-Math.round(40*SC);
+          const lines=wrapText(ctx,page.text,maxW);
+          const lh=bodyFs*1.7;
+          const startY=IY+hdrH+Math.round(32*SC);
+          lines.forEach(function(l,li){ctx.fillText(l,IX+IW/2,startY+li*lh);});
+        }
+      }
+
+      // ── Page number ──
+      ctx.fillStyle=accentAlpha(0.5);
+      ctx.font=`${Math.round(9*SC)}px 'DM Sans',sans-serif`;
+      ctx.textAlign='center';
+      ctx.fillText(''+( idx+1),CW/2,CH-Math.round(10*SC));
+
+      return canvas;
+    }
+
+    // ── Render all pages ──
+    for(let i=0;i<genPages.length;i++){
+      if(i>0) doc.addPage();
+      const canvas=await drawPage(genPages[i],i);
+      doc.addImage(canvas.toDataURL('image/jpeg',0.93),'JPEG',0,0,pdfW,pdfH);
+    }
+
     const title=(document.getElementById('book-title').value||'storybook').replace(/\s+/g,'_');
     doc.save(title+'.pdf');
     showToast('✅ PDF scaricato!');
   }catch(e){
     showToast('Errore PDF: '+e.message); console.error(e);
   }finally{
-    offWrap.remove();
     btn.disabled=false; btn.textContent='⬇ PDF';
   }
 }
