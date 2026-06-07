@@ -7,6 +7,7 @@
 <script src="https://js.puter.com/v2/"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -986,165 +987,56 @@ function updateCover(idx,url){
 
 async function exportPDF(){
   if(!genPages.length){showToast('Genera prima lo storybook!'); return;}
-  showToast('Generazione PDF in corso...');
 
-  const {jsPDF}=window.jspdf;
-  const fmt=document.getElementById('format').value;
-  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:fmt==='A5'?'a5':fmt==='square'?[200,200]:'a4'});
-  const w=doc.internal.pageSize.getWidth(), h=doc.internal.pageSize.getHeight();
+  const btn=document.getElementById('gen-btn');
+  const exportBtn=document.querySelector('[onclick="exportPDF()"]');
+  if(exportBtn){exportBtn.disabled=true; exportBtn.textContent='⏳ PDF in corso...';}
 
-  const hexToRgb=hex=>{
-    const h=hex.replace('#','');
-    return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];
-  };
+  try{
+    const {jsPDF}=window.jspdf;
+    const fmt=document.getElementById('format').value;
+    const isA5=fmt==='A5', isSquare=fmt==='square';
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:isA5?'a5':isSquare?[200,200]:'a4'});
+    const pdfW=doc.internal.pageSize.getWidth();
+    const pdfH=doc.internal.pageSize.getHeight();
 
-  const tcRgb=hexToRgb(selTextColor||'#1a1a1a');
-  const dark=['noir','cyberpunk','spazio'].includes(selTheme);
+    // Get all rendered page cards from the grid
+    const cards=document.querySelectorAll('#pgrid .pc');
+    if(!cards.length){showToast('Nessuna pagina trovata!'); return;}
 
-  // Background colors map
-  const bgMap={
-    white:[255,255,255],
-    cream:[253,248,240],
-    light:[240,244,255],
-    colored: hexToRgb(selColor).map(c=>Math.min(255,Math.round(c*0.15+240)))
-  };
-  const pageBgRgb=dark?[10,10,26]:(bgMap[selBgMode]||[255,255,255]);
+    for(let i=0;i<cards.length;i++){
+      if(i>0) doc.addPage();
 
-  // Font size map
-  const fsMap={small:8,medium:10,large:12};
-  const bodyFs=fsMap[selFontSize]||10;
+      const card=cards[i];
 
-  for(let i=0;i<genPages.length;i++){
-    if(i>0) doc.addPage();
-    const page=genPages[i];
-    const isCover=page.type==='cover';
-    const hasImg=!!page.imgUrl;
-    const lay=page.imgLayout||getLayoutForPDF(i);
+      // Temporarily make card larger for better resolution
+      const origW=card.style.width, origH=card.style.height, origPos=card.style.position;
 
-    // ── BACKGROUND ──
-    if(isCover && hasImg){
-      // Cover with image: draw image full page first
-      try{
-        let d=page.imgUrl; if(!d.startsWith('data:')) d=await toB64(d);
-        doc.addImage(d,'JPEG',0,0,w,h);
-        // Dark overlay for text readability
-        doc.setFillColor(0,0,0);
-        doc.setGState && doc.setGState(new doc.GState({opacity:0.45}));
-        doc.rect(0,0,w,h,'F');
-        doc.setGState && doc.setGState(new doc.GState({opacity:1}));
-      }catch(e){
-        doc.setFillColor(30,30,80); doc.rect(0,0,w,h,'F');
-      }
-    } else {
-      // All other pages: set background color
-      doc.setFillColor(...pageBgRgb);
-      doc.rect(0,0,w,h,'F');
+      // Use html2canvas to screenshot the card
+      const canvas=await html2canvas(card,{
+        scale: 3,           // 3x resolution for print quality
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null,
+        logging: false,
+        imageTimeout: 30000
+      });
+
+      const imgData=canvas.toDataURL('image/jpeg', 0.95);
+      doc.addImage(imgData,'JPEG',0,0,pdfW,pdfH);
     }
 
-    // ── IMAGE (non-cover pages) ──
-    if(!isCover && hasImg){
-      try{
-        let d=page.imgUrl; if(!d.startsWith('data:')) d=await toB64(d);
-        if(lay==='full'){
-          doc.addImage(d,'JPEG',0,0,w,h);
-          // re-draw background under text area
-          doc.setFillColor(...pageBgRgb);
-          // no text overlay needed for full — text is skipped for full pages
-        } else if(lay==='top'){
-          doc.addImage(d,'JPEG',0,0,w,h*0.52);
-        } else if(lay==='bottom'){
-          doc.addImage(d,'JPEG',0,h*0.48,w,h*0.52);
-        }
-      }catch(e){}
-    }
-
-    // ── FRAME ──
-    if(!isCover && lay!=='full'){
-      const txtY=lay==='top'?h*0.54:(lay==='bottom'?4:4);
-      const txtH=lay==='top'?(h*0.44):(lay==='bottom'?(h*0.44):h-8);
-      const mx=10, my=txtY;
-
-      if(selFrameMode==='box'){
-        const fc=dark?[255,255,255,0.3]:hexToRgb('#cccccc');
-        doc.setDrawColor(...(dark?[180,180,180]:fc));
-        doc.setLineWidth(0.3);
-        doc.rect(mx,my,w-mx*2,txtH-2,'S');
-      } else if(selFrameMode==='rounded'){
-        doc.setDrawColor(...(dark?[180,180,180]:[180,180,180]));
-        doc.setLineWidth(0.3);
-        doc.roundedRect(mx,my,w-mx*2,txtH-2,3,3,'S');
-      } else if(selFrameMode==='shadow'){
-        doc.setFillColor(...(dark?[40,40,60]:[255,255,255]));
-        doc.setDrawColor(200,200,200);
-        doc.setLineWidth(0.2);
-        doc.roundedRect(mx+0.5,my+0.5,w-mx*2,txtH-2,2,2,'FD');
-      } else if(selFrameMode==='colored'){
-        const cc=hexToRgb(selColor);
-        doc.setFillColor(cc[0],cc[1],cc[2]);
-        doc.setGState && doc.setGState(new doc.GState({opacity:0.12}));
-        doc.roundedRect(mx,my,w-mx*2,txtH-2,3,3,'F');
-        doc.setGState && doc.setGState(new doc.GState({opacity:1}));
-        doc.setDrawColor(...cc);
-        doc.setLineWidth(0.4);
-        doc.roundedRect(mx,my,w-mx*2,txtH-2,3,3,'S');
-      } else if(selFrameMode==='vintage'){
-        doc.setDrawColor(...(dark?[200,180,120]:[120,100,60]));
-        doc.setLineWidth(0.3);
-        doc.rect(mx,my,w-mx*2,txtH-2,'S');
-        doc.setLineWidth(0.15);
-        doc.rect(mx+1.5,my+1.5,w-mx*2-3,txtH-5,'S');
-      }
-    }
-
-    // ── TEXT ──
-    if(isCover){
-      // Cover text centered
-      const textColor=hasImg?[255,255,255]:tcRgb;
-      doc.setTextColor(...textColor);
-      doc.setFontSize(Math.min(22,w/6));
-      doc.setFont('helvetica','bold');
-      doc.text(page.title||'',w/2,h*0.62,{align:'center',maxWidth:w-16});
-      if(page.subtitle){
-        doc.setFontSize(10);
-        doc.setFont('helvetica','normal');
-        doc.setTextColor(...(hasImg?[220,220,220]:tcRgb));
-        doc.text(page.subtitle,w/2,h*0.62+10,{align:'center',maxWidth:w-20});
-      }
-    } else if(lay!=='full'){
-      // Text area Y position based on layout
-      const txtStartY= lay==='top' ? h*0.55 : (lay==='bottom' ? 6 : 6);
-      const maxW=w-26;
-      let curY=txtStartY;
-
-      if(page.title){
-        doc.setFontSize(7.5);
-        doc.setFont('helvetica','bold');
-        const chapterColor=dark?[180,180,180]:tcRgb.map(c=>Math.min(255,c+90));
-        doc.setTextColor(...chapterColor);
-        doc.text((page.title||'').toUpperCase(),13,curY,{maxWidth:maxW});
-        curY+=6;
-      }
-      if(page.text){
-        doc.setFontSize(bodyFs);
-        doc.setFont('helvetica','normal');
-        doc.setTextColor(...(dark?[210,210,220]:tcRgb));
-        // Split text to fit
-        const lines=doc.splitTextToSize(page.text||'',maxW);
-        doc.text(lines,13,curY);
-      }
-    }
-
-    // ── PAGE NUMBER ──
-    doc.setFontSize(6.5);
-    doc.setTextColor(160,160,160);
-    doc.text(`${i+1}`,w-6,h-4);
+    const title=document.getElementById('book-title').value||'storybook';
+    doc.save(title.replace(/\s+/g,'_')+'.pdf');
+    showToast('PDF scaricato!');
+  }catch(e){
+    showToast('Errore PDF: '+e.message);
+    console.error(e);
+  }finally{
+    if(exportBtn){exportBtn.disabled=false; exportBtn.textContent='⬇ PDF';}
   }
-
-  const title=document.getElementById('book-title').value||'storybook';
-  doc.save(title.replace(/\s+/g,'_')+'.pdf');
 }
 
-// Returns layout for PDF based on stored imgLayout or auto
 function getLayoutForPDF(pageIdx){
   const page=genPages[pageIdx];
   if(page&&page.imgLayout) return page.imgLayout;
