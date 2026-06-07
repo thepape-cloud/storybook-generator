@@ -912,7 +912,7 @@ function renderPreview(pages){
   resetImgCounter();
   document.getElementById('pgrid').innerHTML=pages.map((p,i)=>buildCard(p,i,tc)).join('');
 }
-function buildCard(page,idx,tc){
+  const watermark=`<div style="position:absolute;bottom:4px;left:0;right:0;text-align:center;font-size:7px;opacity:0.35;font-family:var(--font-b);letter-spacing:0.05em;color:inherit;pointer-events:none">✨ baby-libri.it</div>`;
   tc=tc||TCSS[selTheme]||'';
   const dark=['cyberpunk','noir','spazio'].includes(selTheme);
   const pageBg=getPageBg();
@@ -934,24 +934,24 @@ function buildCard(page,idx,tc){
       <div style="position:relative;z-index:1">
         <div class="cover-t" id="ct-${idx}" style="font-family:${ff};${page.imgUrl?'color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.8)':''}">${esc(page.title)}</div>
         <div class="cover-s" id="cs-${idx}" style="${page.imgUrl?'color:rgba(255,255,255,0.85)':''}">${esc(page.subtitle||'')}</div>
-      </div>${editHTML(idx,'cover',page)}</div>`;
+      </div>${watermark}${editHTML(idx,'cover',page)}</div>`;
   }
   if(page.type==='image'||page.imgPrompt){
     const imgH=page.imgUrl?`<img src="${page.imgUrl}" alt="ill" id="img-${idx}">`:`<div class="pimg-spin" id="spin-${idx}">⏳</div>`;
     const lay=page.imgLayout||getLayout();
     if(lay==='full') return `<div class="pc ${tc}" style="background:${pageBg}" onclick="openEdit(${idx})">
       ${pn}<div class="pimg" style="flex:1" id="pimg-${idx}">${imgH}</div>
-      ${editHTML(idx,'image',page)}</div>`;
+      ${watermark}${editHTML(idx,'image',page)}</div>`;
     const top=lay==='top';
     return `<div class="pc ${tc}" style="background:${pageBg}" onclick="openEdit(${idx})">
       ${pn}
       ${top?`<div class="pimg" style="height:52%" id="pimg-${idx}">${imgH}</div>`:''}
       ${textBlock}
       ${!top?`<div class="pimg" style="height:52%" id="pimg-${idx}">${imgH}</div>`:''}
-      ${editHTML(idx,'image',page)}</div>`;
+      ${watermark}${editHTML(idx,'image',page)}</div>`;
   }
   return `<div class="pc text-only ${tc}" style="background:${pageBg}" onclick="openEdit(${idx})">
-    ${pn}${textBlock}${editHTML(idx,'text',page)}</div>`;
+    ${pn}${textBlock}${watermark}${editHTML(idx,'text',page)}</div>`;
 }
 function editHTML(idx,type,page){
   return `<div class="eo" id="eo-${idx}" onclick="event.stopPropagation()">
@@ -988,7 +988,6 @@ function updateCover(idx,url){
 async function exportPDF(){
   if(!genPages.length){showToast('Genera prima lo storybook!'); return;}
 
-  const btn=document.getElementById('gen-btn');
   const exportBtn=document.querySelector('[onclick="exportPDF()"]');
   if(exportBtn){exportBtn.disabled=true; exportBtn.textContent='⏳ PDF in corso...';}
 
@@ -1000,35 +999,59 @@ async function exportPDF(){
     const pdfW=doc.internal.pageSize.getWidth();
     const pdfH=doc.internal.pageSize.getHeight();
 
-    // Get all rendered page cards from the grid
+    // A4 pixel dimensions at 150dpi for good quality
+    const ratio=pdfH/pdfW;
+    const renderW=794; // px — standard A4 at 96dpi
+    const renderH=Math.round(renderW*ratio);
+
     const cards=document.querySelectorAll('#pgrid .pc');
     if(!cards.length){showToast('Nessuna pagina trovata!'); return;}
 
     for(let i=0;i<cards.length;i++){
       if(i>0) doc.addPage();
-
       const card=cards[i];
 
-      // Temporarily make card larger for better resolution
-      const origW=card.style.width, origH=card.style.height, origPos=card.style.position;
+      // Save original styles
+      const orig={
+        width:card.style.width, height:card.style.height,
+        position:card.style.position, left:card.style.left,
+        top:card.style.top, zIndex:card.style.zIndex,
+        aspectRatio:card.style.aspectRatio
+      };
 
-      // Use html2canvas to screenshot the card
+      // Temporarily set exact A4 size for screenshot
+      card.style.width=renderW+'px';
+      card.style.height=renderH+'px';
+      card.style.aspectRatio='unset';
+      card.style.position='fixed';
+      card.style.left='-9999px';
+      card.style.top='0px';
+      card.style.zIndex='-1';
+
+      // Wait for reflow
+      await new Promise(r=>setTimeout(r,80));
+
       const canvas=await html2canvas(card,{
-        scale: 3,           // 3x resolution for print quality
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: null,
-        logging: false,
-        imageTimeout: 30000
+        scale:2,
+        useCORS:true,
+        allowTaint:true,
+        backgroundColor:null,
+        logging:false,
+        width:renderW,
+        height:renderH,
+        imageTimeout:30000
       });
 
-      const imgData=canvas.toDataURL('image/jpeg', 0.95);
+      // Restore original styles
+      Object.assign(card.style, orig);
+
+      const imgData=canvas.toDataURL('image/jpeg',0.95);
       doc.addImage(imgData,'JPEG',0,0,pdfW,pdfH);
     }
 
     const title=document.getElementById('book-title').value||'storybook';
     doc.save(title.replace(/\s+/g,'_')+'.pdf');
-    showToast('PDF scaricato!');
+    showToast('✅ PDF scaricato!');
   }catch(e){
     showToast('Errore PDF: '+e.message);
     console.error(e);
