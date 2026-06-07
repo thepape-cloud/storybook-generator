@@ -1094,6 +1094,12 @@ async function exportPDF(){
   if(!genPages.length){showToast('Genera prima lo storybook!'); return;}
   const btn=document.getElementById('pdf-btn');
   btn.disabled=true; btn.textContent='⏳ In corso...';
+
+  // Off-screen container for clones — never mutates live cards
+  const offWrap=document.createElement('div');
+  offWrap.style.cssText='position:fixed;left:-9999px;top:0;pointer-events:none;z-index:-1;overflow:hidden';
+  document.body.appendChild(offWrap);
+
   try{
     const {jsPDF}=window.jspdf;
     const fmt=document.getElementById('format').value;
@@ -1101,28 +1107,41 @@ async function exportPDF(){
     const pdfW=doc.internal.pageSize.getWidth();
     const pdfH=doc.internal.pageSize.getHeight();
     const ratio=pdfH/pdfW;
-    const renderW=820;
+    const renderW=900;
     const renderH=Math.round(renderW*ratio);
 
     const cards=document.querySelectorAll('#pgrid .pc');
     for(let i=0;i<cards.length;i++){
       if(i>0) doc.addPage();
       const card=cards[i];
-      // Save styles
-      const saved={width:card.style.width,height:card.style.height,position:card.style.position,
-        left:card.style.left,top:card.style.top,zIndex:card.style.zIndex,aspectRatio:card.style.aspectRatio};
-      // Set exact A4 size off-screen
-      Object.assign(card.style,{width:renderW+'px',height:renderH+'px',aspectRatio:'unset',
-        position:'fixed',left:'-9999px',top:'0',zIndex:'-1'});
-      await new Promise(r=>setTimeout(r,80));
       const cardBg=window.getComputedStyle(card).backgroundColor||'#ffffff';
-      const canvas=await html2canvas(card,{
+
+      // Clone into isolated container with exact target dimensions
+      const clone=card.cloneNode(true);
+      // Remove edit overlays from clone
+      clone.querySelectorAll('.eo').forEach(function(e){e.remove();});
+      // Apply exact render size — no aspect-ratio so content fills correctly
+      clone.style.cssText='width:'+renderW+'px;height:'+renderH+'px;min-height:'+renderH+'px;aspect-ratio:unset;position:relative;display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;';
+      // Fix percentage-height image wrappers to explicit pixels
+      clone.querySelectorAll('.pimg-wrap').forEach(function(w){
+        var pct=parseFloat(w.style.height)||52;
+        w.style.height=Math.round(renderH*(pct/100))+'px';
+        w.style.flexShrink='0';
+      });
+      offWrap.innerHTML='';
+      offWrap.style.width=renderW+'px';
+      offWrap.style.height=renderH+'px';
+      offWrap.appendChild(clone);
+
+      // Let browser paint the clone
+      await new Promise(function(r){setTimeout(r,120);});
+
+      const canvas=await html2canvas(clone,{
         scale:2, useCORS:true, allowTaint:true,
         backgroundColor:cardBg, logging:false,
-        width:renderW, height:renderH, imageTimeout:30000
+        width:renderW, height:renderH, imageTimeout:30000,
+        windowWidth:renderW, windowHeight:renderH
       });
-      // Restore styles
-      Object.assign(card.style,saved);
       doc.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',0,0,pdfW,pdfH);
     }
     const title=(document.getElementById('book-title').value||'storybook').replace(/\s+/g,'_');
@@ -1131,6 +1150,7 @@ async function exportPDF(){
   }catch(e){
     showToast('Errore PDF: '+e.message); console.error(e);
   }finally{
+    offWrap.remove();
     btn.disabled=false; btn.textContent='⬇ PDF';
   }
 }
