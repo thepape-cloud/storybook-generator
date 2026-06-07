@@ -11,163 +11,173 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#fdf8f0;--bg2:#fff9f0;--bg3:#f5ede0;
-  --gold:#c9a84c;--gold2:#b8860b;
-  --text:#2a1a0a;--muted:#8a7a6a;--border:rgba(180,140,80,0.2);
+  --bg:#fdf8f0;--bg2:#fff9f0;--bg3:#f0e8d8;
+  --gold:#c9a84c;--gold2:#9a6f0b;
+  --text:#2a1a0a;--muted:#8a7a6a;--border:rgba(180,140,80,0.22);
   --radius:12px;
   --font-d:'Playfair Display',Georgia,serif;
   --font-b:'DM Sans',system-ui,sans-serif;
   --green:#2d8a5a;--amber:#b8860b;
 }
-body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:15px;min-height:100vh;line-height:1.6}
-header{border-bottom:1px solid var(--border);padding:13px 24px;display:flex;align-items:center;gap:10px;background:#fff;box-shadow:0 1px 8px rgba(180,140,80,0.1)}
-header h1{font-family:var(--font-d);font-size:20px;color:var(--text);font-weight:700;flex:1}
-.app{display:flex;height:calc(100vh - 50px)}
-.sidebar{width:380px;flex-shrink:0;background:#fff;border-right:1px solid var(--border);overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px}
-.main{flex:1;overflow-y:auto;padding:24px;background:var(--bg)}
-label{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
-input[type=text],input[type=password],textarea,select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--font-b);font-size:13px;padding:8px 11px;outline:none;transition:border-color .2s}
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:14px;min-height:100vh;line-height:1.6}
+
+/* ── LAYOUT ── */
+header{border-bottom:1px solid var(--border);padding:12px 22px;display:flex;align-items:center;gap:10px;background:#fff;box-shadow:0 1px 6px rgba(180,140,80,0.1)}
+header h1{font-family:var(--font-d);font-size:19px;color:var(--text);font-weight:700;flex:1}
+.app{display:flex;height:calc(100vh - 49px)}
+.sidebar{width:375px;flex-shrink:0;background:#fff;border-right:1px solid var(--border);overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:13px}
+.main{flex:1;overflow-y:auto;padding:22px;background:var(--bg)}
+
+/* ── FORMS ── */
+label{display:block;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+input[type=text],input[type=password],textarea,select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font-b);font-size:13px;padding:7px 10px;outline:none;transition:border-color .2s}
 input:focus,textarea:focus,select:focus{border-color:var(--gold)}
-textarea{resize:vertical;min-height:90px;line-height:1.6}
+textarea{resize:vertical;min-height:88px;line-height:1.6}
 select option{background:#fff}
 .field{display:flex;flex-direction:column}
-.sec{font-family:var(--font-d);font-size:13px;color:var(--gold2);font-style:italic;border-bottom:1px solid var(--border);padding-bottom:5px}
-.badge{display:inline-block;font-size:10px;font-weight:500;padding:1px 6px;border-radius:99px}
-.bf{background:rgba(76,175,130,0.18);color:var(--green);border:1px solid rgba(76,175,130,0.3)}
-.bp{background:rgba(232,168,76,0.15);color:var(--amber);border:1px solid rgba(232,168,76,0.3)}
-.bfm{background:rgba(160,120,220,0.15);color:#7040b0;border:1px solid rgba(160,120,220,0.3)}
-
-/* KEY CARD */
-.key-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px;display:flex;flex-direction:column;gap:8px}
-.key-row{display:flex;align-items:center;gap:8px}
-.key-icon{font-size:18px;flex-shrink:0}
-.key-info{flex:1}
-.key-info .kname{font-size:13px;font-weight:500;color:var(--text)}
-.key-info .kdesc{font-size:11px;color:var(--muted);line-height:1.4}
-.key-link{display:inline-block;font-size:11px;color:var(--gold2);text-decoration:none;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);border-radius:5px;padding:3px 8px;margin-top:3px;white-space:nowrap}
-.key-link:hover{background:rgba(201,168,76,0.2)}
-.key-status{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:#ddd}
-.key-status.ok{background:var(--green)}
-.key-status.err{background:#e05050}
-
-/* TABS */
-.tabs{display:flex;gap:4px;flex-wrap:wrap}
-.tab{flex:1;min-width:70px;padding:6px 4px;border:1.5px solid var(--border);border-radius:7px;background:var(--bg);color:var(--muted);font-size:11px;font-family:var(--font-b);cursor:pointer;text-align:center;transition:all .2s;line-height:1.3}
-.tab:hover{border-color:var(--gold);color:var(--text)}
-.tab.active{border-color:var(--gold);background:rgba(201,168,76,0.1);color:var(--gold2)}
-.panel{display:none}.panel.show{display:flex;flex-direction:column;gap:6px}
-
-/* THEME */
-.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.tbtn{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:9px 5px;cursor:pointer;text-align:center;color:var(--muted);font-size:10px;font-family:var(--font-b);transition:all .2s;line-height:1.3}
-.tbtn:hover{border-color:var(--gold);color:var(--text)}
-.tbtn.active{border-color:var(--gold);background:rgba(201,168,76,0.1);color:var(--gold2)}
-.tbtn .em{font-size:16px;display:block;margin-bottom:2px}
-
-/* PALETTE */
-.palette{display:flex;gap:6px;flex-wrap:wrap}
-.sw{width:26px;height:26px;border-radius:5px;cursor:pointer;border:2px solid transparent;transition:transform .15s}
-.sw:hover{transform:scale(1.12)}
-.sw.active{border-color:white;transform:scale(1.12)}
-
+.sec{font-family:var(--font-d);font-size:12px;color:var(--gold2);font-style:italic;border-bottom:1px solid var(--border);padding-bottom:5px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;border-radius:var(--radius);font-family:var(--font-b);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .2s}
-.btn-p{background:var(--gold);color:#fff;width:100%}
-.btn-p:hover{background:var(--gold2)}
-.btn-p:disabled{opacity:.45;cursor:not-allowed}
-.btn-o{background:transparent;border:1px solid var(--border);color:var(--muted)}
-.btn-o:hover{border-color:var(--gold);color:var(--gold)}
-.btn-g{background:transparent;color:var(--muted);font-size:12px}
-.btn-g:hover{color:var(--gold)}
+/* ── BADGES ── */
+.badge{display:inline-block;font-size:9px;font-weight:600;padding:1px 5px;border-radius:99px;vertical-align:middle}
+.bf{background:rgba(45,138,90,0.12);color:var(--green);border:1px solid rgba(45,138,90,0.25)}
+.bp{background:rgba(184,134,11,0.12);color:var(--amber);border:1px solid rgba(184,134,11,0.25)}
+.bfm{background:rgba(100,60,180,0.1);color:#6030a0;border:1px solid rgba(100,60,180,0.25)}
 
-/* SCENES */
-#scenes-list{display:flex;flex-direction:column;gap:5px}
-.scene-row{display:flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 10px}
-.snum{width:19px;height:19px;background:rgba(201,168,76,0.15);color:var(--gold);border-radius:50%;font-size:9px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.scene-row input{background:transparent;border:none;border-radius:0;padding:0;font-size:12px;color:var(--text)}
-.scene-row input:focus{border:none}
-.del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;flex-shrink:0}
-.del:hover{color:#eb5757}
+/* ── MODE TOGGLE ── */
+.mode-toggle{display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.mode-btn{padding:5px 13px;font-size:11px;font-family:var(--font-b);font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.mode-btn.active{background:var(--gold);color:#fff}
+.mode-btn:not(.active){background:transparent;color:var(--muted)}
 
-/* PROGRESS */
-.prog{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:none;flex-direction:column;gap:8px}
+/* ── KEY CARDS ── */
+.key-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:11px;display:flex;flex-direction:column;gap:7px}
+.key-row{display:flex;align-items:center;gap:8px}
+.key-icon{font-size:16px;flex-shrink:0}
+.key-info{flex:1}
+.kname{font-size:12px;font-weight:600;color:var(--text)}
+.kdesc{font-size:10px;color:var(--muted);line-height:1.4;margin-top:1px}
+.key-link{display:inline-block;font-size:10px;color:var(--gold2);text-decoration:none;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:4px;padding:2px 7px;margin-top:3px}
+.key-link:hover{background:rgba(201,168,76,0.2)}
+.key-dot{width:7px;height:7px;border-radius:50%;background:#ddd;flex-shrink:0;transition:background .3s}
+.key-dot.ok{background:var(--green)}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px}
+.tab{flex:1;padding:5px 3px;border:1.5px solid var(--border);border-radius:7px;background:var(--bg);color:var(--muted);font-size:10px;font-family:var(--font-b);cursor:pointer;text-align:center;transition:all .2s}
+.tab:hover{border-color:var(--gold);color:var(--text)}
+.tab.active{border-color:var(--gold);background:rgba(201,168,76,0.1);color:var(--gold2);font-weight:600}
+.panel{display:none}.panel.show{display:flex;flex-direction:column;gap:6px}
+
+/* ── THEME GRID ── */
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.tbtn{background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:8px 4px;cursor:pointer;text-align:center;color:var(--muted);font-size:10px;font-family:var(--font-b);transition:all .2s;line-height:1.3}
+.tbtn:hover{border-color:var(--gold);color:var(--text)}
+.tbtn.active{border-color:var(--gold);background:rgba(201,168,76,0.1);color:var(--gold2);font-weight:600}
+.tbtn .em{font-size:15px;display:block;margin-bottom:2px}
+
+/* ── COLOR SWATCHES ── */
+.swatches{display:flex;gap:5px;flex-wrap:wrap}
+.sw{width:24px;height:24px;border-radius:5px;cursor:pointer;border:2px solid transparent;transition:transform .15s,border-color .15s;flex-shrink:0}
+.sw:hover{transform:scale(1.15)}
+.sw.active{border-color:var(--gold2) !important;transform:scale(1.15);box-shadow:0 0 0 1px rgba(0,0,0,0.1)}
+
+/* ── LAYOUT/BG/FRAME BUTTONS ── */
+.sel-grid{display:grid;gap:5px}
+.sel-btn{background:var(--bg);border:1.5px solid var(--border);border-radius:7px;padding:5px;cursor:pointer;text-align:center;transition:all .2s;user-select:none}
+.sel-btn:hover{border-color:var(--gold)}
+.sel-btn.active{border-color:var(--gold);background:rgba(201,168,76,0.1)}
+.sel-label{font-size:9px;color:var(--muted);margin-top:3px;display:block}
+.layout-preview{height:28px;border-radius:3px;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #ddd}
+.lp-img{background:linear-gradient(135deg,#a8d8ea,#aa96da);flex-shrink:0}
+.lp-txt{flex:1;background:#fff}
+
+/* ── PROGRESS ── */
+.prog{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:13px;display:none;flex-direction:column;gap:7px}
 .prog.show{display:flex}
 .pbar-w{background:var(--bg3);border-radius:99px;height:3px;overflow:hidden}
-.pbar{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:99px;width:0%;transition:width .4s}
-.plog{font-size:11px;color:var(--muted);max-height:90px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
-.le{padding:1px 0}.le.ok{color:var(--green)}.le.err{color:#e05050}
+.pbar{height:100%;background:linear-gradient(90deg,var(--gold),#e8a820);border-radius:99px;width:0%;transition:width .4s}
+.plog{font-size:11px;color:var(--muted);max-height:85px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.le{padding:1px 0;border-bottom:1px solid rgba(0,0,0,0.04)}
+.le.ok{color:var(--green)}.le.err{color:#d04040}
 
-/* PAGE CARDS */
-.prev-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.prev-head h2{font-family:var(--font-d);font-size:19px;color:var(--text);font-weight:700}
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
-.pc{background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 4px 20px rgba(180,140,80,0.15);position:relative;aspect-ratio:210/297;display:flex;flex-direction:column;color:#1a1a1a;font-family:var(--font-b);cursor:pointer;transition:box-shadow .2s}
-.pc:hover{box-shadow:0 8px 32px rgba(201,168,76,0.2)}
-.pc.theme-bimbi{background:#fffbf0}
-.pc.theme-cyberpunk{background:#0a0a1a;color:#e0e0ff;border:2px solid #00ffcc}
-.pc.theme-anime{background:#fff8fa}
-.pc.theme-fantasy{background:#f5efe0;color:#2a1a0a}
-.pc.theme-noir{background:#111;color:#e8e0d0}
-.pc.theme-spazio{background:#08091a;color:#d0d8ff;border:2px solid #6070ff}
-.pc.theme-dino{background:#f0f8e8;color:#1a3010}
-.pc.theme-natale{background:#f8f0f0;color:#2a0a0a}
-.pc.theme-oceano{background:#eaf6ff;color:#0a2030}
-.pc.theme-fiaba{background:#fdf5ff;color:#2a0a3a}
-.pnum{position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.2);color:rgba(255,255,255,0.7);font-size:8px;border-radius:3px;padding:2px 4px}
-.pimg{width:100%;overflow:hidden;flex-shrink:0;background:rgba(0,0,0,0.06);position:relative}
-.pimg img{width:100%;height:100%;object-fit:cover;display:block}
-.pimg-spin{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;background:rgba(0,0,0,0.05)}
-.ptxt{padding:7px 11px;flex:1;display:flex;flex-direction:column;justify-content:center}
-.pchap{font-size:7px;text-transform:uppercase;letter-spacing:.1em;opacity:.4;margin-bottom:2px}
-.pbody{font-size:9px;line-height:1.55}
-.pc.text-only .ptxt{justify-content:flex-start;padding:12px 14px}
-.pc.text-only .pbody{font-size:10px}
-.pc.is-cover{justify-content:center;align-items:center;text-align:center;padding:14px}
-.cover-t{font-family:var(--font-d);font-size:17px;font-weight:700;margin-bottom:5px;line-height:1.2}
-.cover-s{font-size:9px;opacity:.65}
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:var(--radius);font-family:var(--font-b);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .2s}
+.btn-p{background:var(--gold);color:#fff;width:100%}
+.btn-p:hover{background:var(--gold2)}
+.btn-p:disabled{opacity:.4;cursor:not-allowed}
+.btn-o{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-o:hover{border-color:var(--gold);color:var(--gold2)}
 
-/* EDIT OVERLAY */
-.eo{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.78);z-index:10;flex-direction:column;gap:6px;padding:10px;justify-content:center}
+/* ── PREVIEW ── */
+.prev-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.prev-head h2{font-family:var(--font-d);font-size:18px;color:var(--text);font-weight:700}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+
+/* ── PAGE CARDS ── */
+.pc{background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 3px 16px rgba(180,140,80,0.14);position:relative;aspect-ratio:210/297;display:flex;flex-direction:column;cursor:pointer;transition:box-shadow .2s;color:#1a1a1a;font-family:var(--font-b)}
+.pc:hover{box-shadow:0 6px 28px rgba(201,168,76,0.22)}
+/* Theme backgrounds */
+.pc.th-bimbi{background:#fffbf0}
+.pc.th-cyberpunk{background:#0a0a1a;color:#e0e0ff;border:2px solid #00ffcc}
+.pc.th-anime{background:#fff8fa}
+.pc.th-fantasy{background:#f5efe0;color:#2a1a0a}
+.pc.th-noir{background:#111;color:#e8e0d0}
+.pc.th-spazio{background:#08091a;color:#d0d8ff;border:2px solid #6070ff}
+.pc.th-dino{background:#f0f8e8;color:#1a3010}
+.pc.th-natale{background:#f8f0f0;color:#3a0a0a}
+.pc.th-oceano{background:#eaf6ff;color:#0a2030}
+.pc.th-fiaba{background:#fdf5ff;color:#2a0a3a}
+/* Page number badge */
+.pnum{position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.18);color:rgba(255,255,255,0.8);font-size:7px;border-radius:3px;padding:2px 4px;z-index:2}
+/* Image area */
+.pimg-wrap{width:100%;overflow:hidden;flex-shrink:0;background:rgba(0,0,0,0.05);position:relative}
+.pimg-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.pimg-spin{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(0,0,0,0.04)}
+/* Text area */
+.ptxt-area{padding:7px 10px;flex:1;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.pchap-lbl{font-size:7px;text-transform:uppercase;letter-spacing:.1em;opacity:.4;margin-bottom:2px}
+.pbody-txt{font-size:9px;line-height:1.55;overflow:hidden}
+/* Cover */
+.pc.is-cover{justify-content:center;align-items:center;text-align:center;padding:12px}
+.cover-title{font-family:var(--font-d);font-size:16px;font-weight:700;margin-bottom:5px;line-height:1.2}
+.cover-sub{font-size:9px;opacity:.6}
+/* Watermark */
+.watermark{position:absolute;bottom:4px;left:0;right:0;text-align:center;font-size:7px;opacity:0.3;letter-spacing:.05em;pointer-events:none;z-index:1}
+
+/* ── EDIT OVERLAY ── */
+.eo{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.8);z-index:20;flex-direction:column;gap:6px;padding:10px;justify-content:center}
 .eo.show{display:flex}
-.eo textarea,.eo input{width:100%;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:5px;color:#fff;font-size:10px;padding:6px;font-family:var(--font-b);line-height:1.5}
+.eo input,.eo textarea{width:100%;background:rgba(255,255,255,0.13);border:1px solid rgba(255,255,255,0.3);border-radius:5px;color:#fff;font-size:10px;padding:6px;font-family:var(--font-b);line-height:1.5}
 .eo textarea{resize:none}
-.eo-btns{display:flex;gap:5px;justify-content:flex-end}
+.eo-btns{display:flex;gap:5px;justify-content:flex-end;margin-top:2px}
 .eo-btns button{padding:4px 10px;border-radius:4px;font-size:10px;cursor:pointer;border:none;font-family:var(--font-b)}
-.eok{background:var(--gold);color:#000}
-.ecancel{background:rgba(255,255,255,0.15);color:#fff}
-.elbl{font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:2px;text-transform:uppercase;letter-spacing:.06em}
+.eok{background:var(--gold);color:#000}.ecancel{background:rgba(255,255,255,0.15);color:#fff}
+.elbl{font-size:9px;color:rgba(255,255,255,0.5);margin-bottom:1px;text-transform:uppercase}
 
-.layout-btn,.bg-btn,.frame-btn{background:var(--bg3);border:1.5px solid var(--border);border-radius:7px;padding:5px;cursor:pointer;text-align:center;transition:all .2s}
-.layout-btn:hover,.bg-btn:hover,.frame-btn:hover{border-color:var(--gold)}
-.layout-btn.active,.bg-btn.active,.frame-btn.active{border-color:var(--gold);background:rgba(201,168,76,0.1)}
-.lb-icon{font-size:18px;margin-bottom:2px}
-.lb-label{font-size:9px;color:var(--muted);margin-top:3px}
-.lb-preview{height:32px;border-radius:3px;overflow:hidden;display:flex;flex-direction:column;background:#fff;border:1px solid #ddd}
-.lbp-img{background:linear-gradient(135deg,#a8d8ea,#aa96da);flex-shrink:0}
-.lbp-txt{flex:1;background:#fff}
-.empty-state .icon{font-size:42px;margin-bottom:12px}
-.empty-state p{font-size:13px;line-height:1.6;max-width:280px;margin:0 auto}
-
+/* ── MISC ── */
+.empty-state{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty-state .icon{font-size:40px;margin-bottom:12px}
+.empty-state p{font-size:13px;line-height:1.7;max-width:280px;margin:0 auto}
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
-input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:var(--bg);border-radius:99px;border:none;padding:0}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--gold);cursor:pointer;border:2px solid var(--bg2)}
-.toast{position:fixed;bottom:18px;right:18px;background:#eb5757;color:white;padding:9px 14px;border-radius:var(--radius);font-size:12px;max-width:280px;z-index:999;transform:translateY(100px);opacity:0;transition:all .3s}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:var(--bg3);border-radius:99px;border:none;padding:0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--gold);cursor:pointer;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.toast{position:fixed;bottom:16px;right:16px;background:#c0392b;color:#fff;padding:9px 14px;border-radius:10px;font-size:12px;max-width:280px;z-index:9999;transform:translateY(120px);opacity:0;transition:all .3s}
 .toast.show{transform:translateY(0);opacity:1}
 </style>
 </head>
 <body>
+
 <header>
   <span>📚</span>
   <h1>Storybook Generator</h1>
   <div style="display:flex;align-items:center;gap:10px">
     <span id="puter-status" style="font-size:11px;color:var(--muted)"></span>
-    <div style="display:flex;background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden">
-      <button class="mode-btn active" id="btn-free" onclick="setMode('free')" style="padding:6px 14px;font-size:12px;font-family:var(--font-b);font-weight:500;cursor:pointer;border:none;background:var(--gold);color:#fff;transition:all .2s">✨ Free</button>
-      <button class="mode-btn" id="btn-pro" onclick="setMode('pro')" style="padding:6px 14px;font-size:12px;font-family:var(--font-b);font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all .2s">⚡ Pro (API Keys)</button>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-free" onclick="setMode('free')">✨ Free</button>
+      <button class="mode-btn" id="btn-pro" onclick="setMode('pro')">⚡ Pro</button>
     </div>
   </div>
 </header>
@@ -176,17 +186,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 <aside class="sidebar">
 
   <!-- FREE MODE -->
-  <div id="free-section">
-    <div class="sec">🆓 Modalità gratuita — Puter.js</div>
-    <div style="margin-top:8px;background:rgba(45,138,90,0.06);border:1px solid rgba(45,138,90,0.2);border-radius:var(--radius);padding:11px;font-size:12px;color:var(--green);line-height:1.6">
+  <div id="sec-free">
+    <div class="sec">🆓 Modalità Free — Puter.js</div>
+    <div style="margin-top:8px;background:rgba(45,138,90,0.07);border:1px solid rgba(45,138,90,0.2);border-radius:10px;padding:10px;font-size:12px;color:var(--green);line-height:1.65">
       <strong>Zero chiavi, zero costi!</strong><br>
-      Al primo utilizzo apre un popup Puter (account gratuito in 30 sec).<br>
+      Al primo utilizzo apre un popup Puter (30 sec).<br>
       Testo: GPT-4o · Claude · Gemini<br>
-      Immagini: DALL-E · Flux · SD
+      Immagini: Flux · DALL-E · SD
     </div>
-    <div class="two" style="margin-top:10px">
-      <div class="field">
-        <label>Modello testo</label>
+    <div class="two" style="margin-top:9px">
+      <div class="field"><label>Modello testo</label>
         <select id="puter-txt">
           <option value="gpt-4o-mini">GPT-4o Mini</option>
           <option value="gpt-4o">GPT-4o</option>
@@ -194,11 +203,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
           <option value="gemini-1.5-flash">Gemini Flash</option>
         </select>
       </div>
-      <div class="field">
-        <label>Modello immagini</label>
+      <div class="field"><label>Modello immagini</label>
         <select id="puter-img">
-          <option value="flux-schnell">Flux Schnell (consigliato)</option>
-          <option value="flux-dev">Flux Dev (qualità alta)</option>
+          <option value="flux-schnell">Flux Schnell ✓</option>
+          <option value="flux-dev">Flux Dev</option>
           <option value="dall-e-3">DALL-E 3</option>
           <option value="stable-diffusion-xl-base">SD XL</option>
         </select>
@@ -206,112 +214,106 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     </div>
   </div>
 
-  <!-- PRO MODE -->
-  <div id="pro-section" style="display:none">
+  <!-- PRO MODE: TEXT -->
+  <div id="sec-pro-txt" style="display:none">
     <div class="sec">✍️ Motore testo</div>
-    <div class="tabs" style="margin-top:8px" id="ttabs">
+    <div class="tabs" style="margin-top:7px" id="ttabs">
       <button class="tab active" onclick="swT('groq',this)">Groq <span class="badge bf">Free</span></button>
       <button class="tab" onclick="swT('gemini',this)">Gemini <span class="badge bf">Free</span></button>
       <button class="tab" onclick="swT('claude',this)">Claude <span class="badge bp">Paid</span></button>
     </div>
-
-    <div class="panel show" id="pt-groq" style="margin-top:8px">
+    <div class="panel show" id="pt-groq" style="margin-top:7px">
       <div class="key-card">
         <div class="key-row">
           <span class="key-icon">⚡</span>
           <div class="key-info">
             <div class="kname">Groq — Llama 3.3 <span class="badge bf">Gratis</span></div>
-            <div class="kdesc">14.400 req/giorno · Velocissimo · No carta</div>
+            <div class="kdesc">14.400 req/giorno · No carta di credito</div>
             <a class="key-link" href="https://console.groq.com/keys" target="_blank">➜ Ottieni chiave gratis</a>
           </div>
-          <div class="key-status" id="ks-groq"></div>
+          <div class="key-dot" id="kd-groq"></div>
         </div>
-        <input type="password" id="groq-key" placeholder="gsk_..." oninput="checkKey('groq')">
+        <input type="password" id="groq-key" placeholder="gsk_..." oninput="updateKeyDot('kd-groq',this)">
       </div>
     </div>
-
-    <div class="panel" id="pt-gemini" style="margin-top:8px">
+    <div class="panel" id="pt-gemini" style="margin-top:7px">
       <div class="key-card">
         <div class="key-row">
           <span class="key-icon">🌐</span>
           <div class="key-info">
             <div class="kname">Google Gemini Flash <span class="badge bf">Gratis</span></div>
-            <div class="kdesc">15 req/min · 1M token/giorno · No carta</div>
+            <div class="kdesc">15 req/min · 1M token/giorno</div>
             <a class="key-link" href="https://aistudio.google.com/app/apikey" target="_blank">➜ Ottieni chiave gratis</a>
           </div>
-          <div class="key-status" id="ks-gemini"></div>
+          <div class="key-dot" id="kd-gemini"></div>
         </div>
-        <input type="password" id="gemini-key" placeholder="AIza..." oninput="checkKey('gemini')">
+        <input type="password" id="gemini-key" placeholder="AIza..." oninput="updateKeyDot('kd-gemini',this)">
       </div>
     </div>
-
-    <div class="panel" id="pt-claude" style="margin-top:8px">
+    <div class="panel" id="pt-claude" style="margin-top:7px">
       <div class="key-card">
         <div class="key-row">
           <span class="key-icon">🤖</span>
           <div class="key-info">
             <div class="kname">Claude Sonnet 4 <span class="badge bp">~$0.02/libro</span></div>
-            <div class="kdesc">Qualità più alta · Min $5 di crediti</div>
+            <div class="kdesc">Qualità alta · Crediti minimi $5</div>
             <a class="key-link" href="https://console.anthropic.com" target="_blank">➜ console.anthropic.com</a>
           </div>
-          <div class="key-status" id="ks-claude"></div>
+          <div class="key-dot" id="kd-claude"></div>
         </div>
-        <input type="password" id="claude-key" placeholder="sk-ant-..." oninput="checkKey('claude')">
+        <input type="password" id="claude-key" placeholder="sk-ant-..." oninput="updateKeyDot('kd-claude',this)">
       </div>
     </div>
   </div>
 
-  <!-- IMMAGINI PRO -->
-  <div id="pro-img-section" style="display:none">
+  <!-- PRO MODE: IMAGES -->
+  <div id="sec-pro-img" style="display:none">
     <div class="sec">🖼 Motore immagini</div>
-    <div class="tabs" style="margin-top:8px" id="itabs">
+    <div class="tabs" style="margin-top:7px" id="itabs">
       <button class="tab active" onclick="swI('together',this)">Together <span class="badge bf">$1 free</span></button>
       <button class="tab" onclick="swI('stability',this)">Stability <span class="badge bfm">25/day</span></button>
       <button class="tab" onclick="swI('dalle',this)">DALL-E 3 <span class="badge bp">Paid</span></button>
     </div>
-
-    <div class="panel show" id="pi-together" style="margin-top:8px">
+    <div class="panel show" id="pi-together" style="margin-top:7px">
       <div class="key-card">
         <div class="key-row">
           <span class="key-icon">🎨</span>
           <div class="key-info">
             <div class="kname">Together AI — Flux Schnell <span class="badge bf">$1 gratis</span></div>
-            <div class="kdesc">~20 immagini gratis · Stabile · No carta</div>
+            <div class="kdesc">~20 immagini gratis · Stabile</div>
             <a class="key-link" href="https://api.together.xyz/settings/api-keys" target="_blank">➜ Ottieni $1 gratis</a>
           </div>
-          <div class="key-status" id="ks-together"></div>
+          <div class="key-dot" id="kd-together"></div>
         </div>
-        <input type="password" id="together-key" placeholder="..." oninput="checkKey('together')">
+        <input type="password" id="together-key" placeholder="..." oninput="updateKeyDot('kd-together',this)">
       </div>
     </div>
-
-    <div class="panel" id="pi-stability" style="margin-top:8px">
+    <div class="panel" id="pi-stability" style="margin-top:7px">
       <div class="key-card">
         <div class="key-row">
           <span class="key-icon">🎭</span>
           <div class="key-info">
-            <div class="kname">Stability AI SD3 <span class="badge bfm">25/giorno gratis</span></div>
-            <div class="kdesc">25 immagini/giorno · Registrazione gratuita</div>
+            <div class="kname">Stability AI <span class="badge bfm">25/giorno gratis</span></div>
+            <div class="kdesc">25 immagini/giorno gratuite</div>
             <a class="key-link" href="https://platform.stability.ai/account/keys" target="_blank">➜ Ottieni chiave</a>
           </div>
-          <div class="key-status" id="ks-stability"></div>
+          <div class="key-dot" id="kd-stability"></div>
         </div>
-        <input type="password" id="stability-key" placeholder="sk-..." oninput="checkKey('stability')">
+        <input type="password" id="stability-key" placeholder="sk-..." oninput="updateKeyDot('kd-stability',this)">
       </div>
     </div>
-
-    <div class="panel" id="pi-dalle" style="margin-top:8px">
+    <div class="panel" id="pi-dalle" style="margin-top:7px">
       <div class="key-card">
         <div class="key-row">
           <span class="key-icon">🖼</span>
           <div class="key-info">
             <div class="kname">OpenAI DALL-E 3 <span class="badge bp">$0.04/img</span></div>
-            <div class="kdesc">Qualità altissima · 4 img = ~$0.16</div>
+            <div class="kdesc">Qualità alta · 4 img = ~$0.16</div>
             <a class="key-link" href="https://platform.openai.com/api-keys" target="_blank">➜ platform.openai.com</a>
           </div>
-          <div class="key-status" id="ks-dalle"></div>
+          <div class="key-dot" id="kd-openai"></div>
         </div>
-        <input type="password" id="openai-key" placeholder="sk-..." oninput="checkKey('openai')">
+        <input type="password" id="openai-key" placeholder="sk-..." oninput="updateKeyDot('kd-openai',this)">
       </div>
     </div>
   </div>
@@ -321,9 +323,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <div class="sec">La storia</div>
     <div class="field" style="margin-top:8px">
       <label>Trama</label>
-      <textarea id="plot" placeholder="Es: Un coniglietto vuole imparare a volare come gli uccellini..."></textarea>
+      <textarea id="plot" placeholder="Es: Un coniglietto vuole imparare a volare come gli uccellini del bosco..."></textarea>
     </div>
-    <div class="field" style="margin-top:7px">
+    <div class="field" style="margin-top:6px">
       <label>Titolo</label>
       <input type="text" id="book-title" placeholder="Es: Leo e il volo segreto">
     </div>
@@ -345,39 +347,46 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
       <button class="tbtn" data-t="natale"><span class="em">🎄</span>Natale</button>
       <button class="tbtn" data-t="custom"><span class="em">✏️</span>Custom</button>
     </div>
-    <div class="field" id="custom-field" style="margin-top:7px;display:none">
-      <input type="text" id="custom-theme" placeholder="Descrivi il tema...">
+    <div id="custom-field" style="display:none;margin-top:6px">
+      <input type="text" id="custom-theme" placeholder="Descrivi il tuo tema...">
     </div>
   </div>
 
-  <!-- COLORE -->
+  <!-- COLORE DOMINANTE -->
   <div>
     <div class="sec">Colore dominante</div>
-    <div class="palette" style="margin-top:8px" id="palette">
+    <div class="swatches" style="margin-top:8px" id="palette">
       <div class="sw active" data-c="#ffb347" style="background:#ffb347"></div>
       <div class="sw" data-c="#ff6b6b" style="background:#ff6b6b"></div>
       <div class="sw" data-c="#ffd93d" style="background:#ffd93d"></div>
       <div class="sw" data-c="#6bcb77" style="background:#6bcb77"></div>
-      <div class="sw" data-c="#00ffcc" style="background:#00ffcc"></div>
+      <div class="sw" data-c="#00c896" style="background:#00c896"></div>
       <div class="sw" data-c="#a855f7" style="background:#a855f7"></div>
       <div class="sw" data-c="#3b82f6" style="background:#3b82f6"></div>
       <div class="sw" data-c="#ec4899" style="background:#ec4899"></div>
       <div class="sw" data-c="#f97316" style="background:#f97316"></div>
-      <div class="sw" data-c="#e8d5b7" style="background:#e8d5b7"></div>
+      <div class="sw" data-c="#e8d5b7" style="background:#e8d5b7;border:1px solid #ccc"></div>
     </div>
   </div>
 
-  <!-- FORMATO -->
+  <!-- FORMATO E LUNGHEZZA -->
   <div>
-    <div class="sec">Formato e impaginazione</div>
+    <div class="sec">Formato e lunghezza</div>
     <div class="two" style="margin-top:8px">
-      <div class="field">
-        <label>Formato</label>
-        <select id="format"><option value="A4">A4</option><option value="A5">A5</option><option value="square">Quadrato</option></select>
+      <div class="field"><label>Formato</label>
+        <select id="format">
+          <option value="A4">A4 (210×297)</option>
+          <option value="A5">A5 (148×210)</option>
+          <option value="square">Quadrato</option>
+        </select>
       </div>
-      <div class="field">
-        <label>Lingua</label>
-        <select id="language"><option value="italiano">Italiano</option><option value="inglese">Inglese</option><option value="spagnolo">Spagnolo</option><option value="francese">Francese</option></select>
+      <div class="field"><label>Lingua</label>
+        <select id="language">
+          <option value="italiano">Italiano</option>
+          <option value="inglese">Inglese</option>
+          <option value="spagnolo">Spagnolo</option>
+          <option value="francese">Francese</option>
+        </select>
       </div>
     </div>
     <div class="field" style="margin-top:9px">
@@ -388,99 +397,93 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
       <label>Immagini: <span id="ival" style="color:var(--gold)">4</span></label>
       <input type="range" id="irange" min="1" max="12" value="4">
     </div>
+  </div>
 
-    <!-- LAYOUT IMMAGINI -->
-    <div style="margin-top:10px">
+  <!-- IMPAGINAZIONE -->
+  <div>
+    <div class="sec">Impaginazione</div>
+
+    <!-- Layout -->
+    <div style="margin-top:9px">
       <label>Layout illustrazioni</label>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:6px" id="layout-grid">
-        <div class="layout-btn active" data-l="auto" onclick="selLayout('auto',this)" title="Mix automatico">
-          <div class="lb-icon">🎲</div><div class="lb-label">Auto mix</div>
+      <div class="sel-grid" style="grid-template-columns:repeat(4,1fr);margin-top:6px" id="layout-grid">
+        <div class="sel-btn active" onclick="pickLayout('auto',this)">
+          <div style="font-size:16px;margin-bottom:2px">🎲</div>
+          <span class="sel-label">Auto mix</span>
         </div>
-        <div class="layout-btn" data-l="top" onclick="selLayout('top',this)" title="Immagine sopra">
-          <div class="lb-preview"><div class="lbp-img" style="height:55%"></div><div class="lbp-txt"></div></div><div class="lb-label">Sopra</div>
+        <div class="sel-btn" onclick="pickLayout('top',this)">
+          <div class="layout-preview"><div class="lp-img" style="height:55%"></div><div class="lp-txt"></div></div>
+          <span class="sel-label">Sopra</span>
         </div>
-        <div class="layout-btn" data-l="bottom" onclick="selLayout('bottom',this)" title="Immagine sotto">
-          <div class="lb-preview"><div class="lbp-txt"></div><div class="lbp-img" style="height:55%"></div></div><div class="lb-label">Sotto</div>
+        <div class="sel-btn" onclick="pickLayout('bottom',this)">
+          <div class="layout-preview"><div class="lp-txt"></div><div class="lp-img" style="height:55%"></div></div>
+          <span class="sel-label">Sotto</span>
         </div>
-        <div class="layout-btn" data-l="full" onclick="selLayout('full',this)" title="Piena pagina">
-          <div class="lb-preview"><div class="lbp-img" style="height:100%"></div></div><div class="lb-label">Piena</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SFONDO PAGINE -->
-    <div style="margin-top:10px">
-      <label>Sfondo pagine testo</label>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:6px" id="bg-grid">
-        <div class="bg-btn active" data-bg="white" onclick="selBg('white',this)">
-          <div style="width:100%;height:24px;border-radius:4px;background:#fff;border:1px solid #ddd"></div><div class="lb-label">Bianco</div>
-        </div>
-        <div class="bg-btn" data-bg="cream" onclick="selBg('cream',this)">
-          <div style="width:100%;height:24px;border-radius:4px;background:#fdf8f0;border:1px solid #e8d5b7"></div><div class="lb-label">Crema</div>
-        </div>
-        <div class="bg-btn" data-bg="light" onclick="selBg('light',this)">
-          <div style="width:100%;height:24px;border-radius:4px;background:#f0f4ff;border:1px solid #c5cff0"></div><div class="lb-label">Chiaro</div>
-        </div>
-        <div class="bg-btn" data-bg="colored" onclick="selBg('colored',this)">
-          <div style="width:100%;height:24px;border-radius:4px" id="bg-colored-preview"></div><div class="lb-label">Colorato</div>
+        <div class="sel-btn" onclick="pickLayout('full',this)">
+          <div class="layout-preview"><div class="lp-img" style="height:100%"></div></div>
+          <span class="sel-label">Piena</span>
         </div>
       </div>
     </div>
 
-    <!-- CORNICE TESTO -->
-    <div style="margin-top:10px">
-      <label>Stile testo</label>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:6px" id="frame-grid">
-        <div class="frame-btn active" data-f="none" onclick="selFrame('none',this)">
-          <div style="padding:6px;font-size:9px;color:var(--muted);text-align:center;border:1px solid transparent">Testo libero</div>
+    <!-- Sfondo -->
+    <div style="margin-top:9px">
+      <label>Sfondo pagine</label>
+      <div class="sel-grid" style="grid-template-columns:repeat(4,1fr);margin-top:6px" id="bg-grid">
+        <div class="sel-btn active" onclick="pickBg('white',this)">
+          <div style="height:20px;border-radius:4px;background:#fff;border:1px solid #ddd"></div>
+          <span class="sel-label">Bianco</span>
         </div>
-        <div class="frame-btn" data-f="box" onclick="selFrame('box',this)">
-          <div style="padding:6px;font-size:9px;color:var(--muted);text-align:center;border:1px solid #aaa;border-radius:4px">Riquadro</div>
+        <div class="sel-btn" onclick="pickBg('cream',this)">
+          <div style="height:20px;border-radius:4px;background:#fdf8f0;border:1px solid #e8d5b7"></div>
+          <span class="sel-label">Crema</span>
         </div>
-        <div class="frame-btn" data-f="rounded" onclick="selFrame('rounded',this)">
-          <div style="padding:6px;font-size:9px;color:var(--muted);text-align:center;border:1px solid #aaa;border-radius:12px">Arrotondato</div>
+        <div class="sel-btn" onclick="pickBg('light',this)">
+          <div style="height:20px;border-radius:4px;background:#f0f4ff;border:1px solid #c5cff0"></div>
+          <span class="sel-label">Azzurro</span>
         </div>
-        <div class="frame-btn" data-f="shadow" onclick="selFrame('shadow',this)">
-          <div style="padding:6px;font-size:9px;color:var(--muted);text-align:center;background:#fff;box-shadow:2px 2px 6px rgba(0,0,0,0.15);border-radius:4px">Ombra</div>
-        </div>
-        <div class="frame-btn" data-f="colored" onclick="selFrame('colored',this)">
-          <div style="padding:6px;font-size:9px;color:#fff;text-align:center;border-radius:4px" id="frame-colored-preview">Colorato</div>
-        </div>
-        <div class="frame-btn" data-f="vintage" onclick="selFrame('vintage',this)">
-          <div style="padding:6px;font-size:9px;color:var(--muted);text-align:center;border:2px double #aaa;border-radius:2px">Vintage</div>
+        <div class="sel-btn" onclick="pickBg('colored',this)">
+          <div id="bg-color-preview" style="height:20px;border-radius:4px;border:1px solid #ddd"></div>
+          <span class="sel-label">Colorato</span>
         </div>
       </div>
     </div>
 
-    <!-- COLORE TESTO -->
-    <div style="margin-top:10px">
-      <label>Colore testo</label>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px" id="txt-color-palette">
-        <div class="sw active" data-tc="#1a1a1a" style="background:#1a1a1a;border-color:white" title="Nero"></div>
-        <div class="sw" data-tc="#2a1a0a" style="background:#2a1a0a" title="Bruno scuro"></div>
-        <div class="sw" data-tc="#0a0a2a" style="background:#0a0a2a" title="Blu notte"></div>
-        <div class="sw" data-tc="#1a2a0a" style="background:#1a2a0a" title="Verde scuro"></div>
-        <div class="sw" data-tc="#4a4a4a" style="background:#4a4a4a" title="Grigio scuro"></div>
-        <div class="sw" data-tc="#e8e3d9" style="background:#e8e3d9" title="Chiaro (per sfondi scuri)"></div>
-        <div class="sw" data-tc="#ffffff" style="background:#fff;border:1px solid #ddd" title="Bianco"></div>
-        <div class="sw" data-tc="#c9a84c" style="background:#c9a84c" title="Oro"></div>
-        <div class="sw" data-tc="#8b4513" style="background:#8b4513" title="Marrone"></div>
-        <div class="sw" data-tc="#1a4a6a" style="background:#1a4a6a" title="Blu oceano"></div>
+    <!-- Cornice testo -->
+    <div style="margin-top:9px">
+      <label>Cornice testo</label>
+      <div class="sel-grid" style="grid-template-columns:repeat(3,1fr);margin-top:6px" id="frame-grid">
+        <div class="sel-btn active" onclick="pickFrame('none',this)">
+          <div style="font-size:9px;color:var(--muted);padding:4px;text-align:center">Nessuna</div>
+        </div>
+        <div class="sel-btn" onclick="pickFrame('box',this)">
+          <div style="font-size:9px;color:var(--muted);padding:4px;text-align:center;border:1px solid #aaa;border-radius:3px">Riquadro</div>
+        </div>
+        <div class="sel-btn" onclick="pickFrame('rounded',this)">
+          <div style="font-size:9px;color:var(--muted);padding:4px;text-align:center;border:1px solid #aaa;border-radius:10px">Arroton.</div>
+        </div>
+        <div class="sel-btn" onclick="pickFrame('shadow',this)">
+          <div style="font-size:9px;color:var(--muted);padding:4px;text-align:center;background:#fff;box-shadow:1px 2px 5px rgba(0,0,0,0.14);border-radius:3px">Ombra</div>
+        </div>
+        <div class="sel-btn" onclick="pickFrame('colored',this)">
+          <div id="frame-color-preview" style="font-size:9px;color:#fff;padding:4px;text-align:center;border-radius:3px">Colorato</div>
+        </div>
+        <div class="sel-btn" onclick="pickFrame('vintage',this)">
+          <div style="font-size:9px;color:var(--muted);padding:4px;text-align:center;border:2px double #999">Vintage</div>
+        </div>
       </div>
     </div>
 
-    <!-- DIMENSIONE TESTO -->
-    <div class="two" style="margin-top:10px">
-      <div class="field">
-        <label>Dimensione testo</label>
+    <!-- Testo -->
+    <div class="two" style="margin-top:9px">
+      <div class="field"><label>Dim. testo</label>
         <select id="font-size">
           <option value="small">Piccolo</option>
           <option value="medium" selected>Medio</option>
           <option value="large">Grande</option>
         </select>
       </div>
-      <div class="field">
-        <label>Font stile</label>
+      <div class="field"><label>Font</label>
         <select id="font-style">
           <option value="sans">Sans-serif</option>
           <option value="serif">Serif</option>
@@ -488,34 +491,51 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
         </select>
       </div>
     </div>
+
+    <!-- Colore testo -->
+    <div style="margin-top:9px">
+      <label>Colore testo</label>
+      <div class="swatches" style="margin-top:6px" id="txt-palette">
+        <div class="sw active" data-tc="#1a1a1a" style="background:#1a1a1a"></div>
+        <div class="sw" data-tc="#2a1a0a" style="background:#2a1a0a"></div>
+        <div class="sw" data-tc="#0a0a2a" style="background:#0a0a2a"></div>
+        <div class="sw" data-tc="#1a2a0a" style="background:#1a2a0a"></div>
+        <div class="sw" data-tc="#4a4a4a" style="background:#4a4a4a"></div>
+        <div class="sw" data-tc="#e0d8cc" style="background:#e0d8cc;border:1px solid #ccc"></div>
+        <div class="sw" data-tc="#ffffff" style="background:#fff;border:1px solid #ddd"></div>
+        <div class="sw" data-tc="#c9a84c" style="background:#c9a84c"></div>
+        <div class="sw" data-tc="#8b4513" style="background:#8b4513"></div>
+        <div class="sw" data-tc="#1a4a6a" style="background:#1a4a6a"></div>
+      </div>
+    </div>
   </div>
 
   <!-- PROGRESS -->
   <div class="prog" id="prog">
-    <div style="font-size:12px;font-weight:500;color:var(--gold)">Generazione in corso...</div>
+    <div style="font-size:12px;font-weight:600;color:var(--gold2)">Generazione in corso...</div>
     <div class="pbar-w"><div class="pbar" id="pbar"></div></div>
     <div class="plog" id="plog"></div>
   </div>
 
   <button class="btn btn-p" id="gen-btn" onclick="generate()">✨ Genera Storybook</button>
   <div style="display:flex;gap:6px">
-    <button class="btn btn-o" style="flex:1;font-size:12px" onclick="exportPDF()">⬇ PDF</button>
+    <button class="btn btn-o" style="flex:1;font-size:12px" id="pdf-btn" onclick="exportPDF()">⬇ PDF</button>
     <button class="btn btn-o" style="flex:1;font-size:12px" onclick="clearAll()">🗑 Reset</button>
   </div>
+
 </aside>
 
 <main class="main">
   <div class="prev-head">
     <h2>Anteprima</h2>
-    <div style="font-size:11px;color:var(--muted)" id="prev-info"></div>
+    <span style="font-size:11px;color:var(--muted)" id="prev-info"></span>
   </div>
   <div id="pgrid" class="pgrid">
     <div class="empty-state">
       <div class="icon">📖</div>
       <p>Il tuo storybook apparirà qui.<br><br>
-      <strong style="color:var(--gold)">Per iniziare gratis:</strong><br>
-      Testo → chiave Groq (console.groq.com)<br>
-      Immagini → Together AI ($1 gratis)</p>
+      <strong style="color:var(--gold2)">Modalità Free:</strong> zero chiavi, usa Puter.js<br>
+      <strong style="color:var(--gold2)">Modalità Pro:</strong> Groq (gratis) + Together AI ($1)</p>
     </div>
   </div>
 </main>
@@ -523,198 +543,213 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 <div class="toast" id="toast"></div>
 
 <script>
+// ── STATE ────────────────────────────────────────────────
+let mode='free', tProv='groq', iProv='together';
 let selTheme='bimbi', selColor='#ffb347', selTextColor='#1a1a1a';
-let scenes=[], genPages=[], isGen=false;
-let tProv='groq', iProv='together';
-let mode='free';
-let selLayoutMode='auto', selBgMode='white', selFrameMode='none';
+let selLayout='auto', selBg='white', selFrame='none';
 let selFontSize='medium', selFontStyle='sans';
+let genPages=[], isGen=false;
+let imgCounter=0;
 
+// ── CONSTANTS ─────────────────────────────────────────────
 const LAYOUTS=['top','bottom','top','full','bottom','top','bottom','full'];
-
-function selLayout(l,btn){
-  selLayoutMode=l;
-  document.querySelectorAll('.layout-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-}
-function selBg(b,btn){
-  selBgMode=b;
-  document.querySelectorAll('.bg-btn').forEach(x=>x.classList.remove('active'));
-  btn.classList.add('active');
-}
-function selFrame(f,btn){
-  selFrameMode=f;
-  document.querySelectorAll('.frame-btn').forEach(x=>x.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-function getPageBg(){
-  if(selBgMode==='white') return '#ffffff';
-  if(selBgMode==='cream') return '#fdf8f0';
-  if(selBgMode==='light') return '#f0f4ff';
-  if(selBgMode==='colored') return hexToRgba(selColor,0.08);
-  return '#ffffff';
-}
-function hexToRgba(hex,a){
-  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-  return `rgba(${r},${g},${b},${a})`;
-}
-let imgLayoutCounter=0;
-function resetImgCounter(){imgLayoutCounter=0;}
-function getLayout(){
-  if(selLayoutMode!=='auto') return selLayoutMode;
-  return LAYOUTS[(imgLayoutCounter++)%LAYOUTS.length];
-}
-function getFontFamily(){
-  if(selFontStyle==='serif') return "'Playfair Display',Georgia,serif";
-  if(selFontStyle==='round') return "'Nunito','DM Sans',sans-serif";
-  return "'DM Sans',system-ui,sans-serif";
-}
-function getFontSize(){
-  if(selFontSize==='small') return '9px';
-  if(selFontSize==='large') return '12px';
-  return '10px';
-}
-function getFrameStyle(dark){
-  const bg = dark?'rgba(255,255,255,0.08)':'getPageBg()';
-  if(selFrameMode==='none') return '';
-  if(selFrameMode==='box') return `border:1px solid ${dark?'rgba(255,255,255,0.2)':'#ccc'};border-radius:4px;padding:8px`;
-  if(selFrameMode==='rounded') return `border:1px solid ${dark?'rgba(255,255,255,0.2)':'#ccc'};border-radius:14px;padding:8px`;
-  if(selFrameMode==='shadow') return `background:${dark?'rgba(255,255,255,0.07)':'#fff'};box-shadow:2px 3px 10px rgba(0,0,0,0.12);border-radius:6px;padding:8px`;
-  if(selFrameMode==='colored') return `background:${hexToRgba(selColor,0.15)};border:1px solid ${hexToRgba(selColor,0.4)};border-radius:6px;padding:8px`;
-  if(selFrameMode==='vintage') return `border:2px double ${dark?'rgba(255,255,255,0.3)':'#999'};border-radius:2px;padding:8px`;
-  return '';
-}
-
-function setMode(m){
-  mode=m;
-  document.getElementById('btn-free').style.background=m==='free'?'var(--gold)':'transparent';
-  document.getElementById('btn-free').style.color=m==='free'?'#fff':'var(--muted)';
-  document.getElementById('btn-pro').style.background=m==='pro'?'var(--gold)':'transparent';
-  document.getElementById('btn-pro').style.color=m==='pro'?'#fff':'var(--muted)';
-  document.getElementById('free-section').style.display=m==='free'?'block':'none';
-  document.getElementById('pro-section').style.display=m==='pro'?'block':'none';
-  document.getElementById('pro-img-section').style.display=m==='pro'?'block':'none';
-}
-
 const THEMES={
-  bimbi:"children's book illustration, soft watercolor, cute round characters, pastel colors, gentle outlines, playful warm, simple shapes",
-  fiaba:"fairy tale illustration, magical forest, enchanted castle, glowing fairies, soft painterly, warm golden light, dreamy",
-  fantasy:"epic fantasy illustration, painterly, magical world, medieval architecture, mystical creatures, dramatic lighting",
-  spazio:"space illustration, colorful planets, friendly rockets, cute aliens, starfield, vibrant cosmic colors, children sci-fi",
+  bimbi:"children's book illustration, soft watercolor, cute round characters, pastel colors, gentle outlines, playful warm, simple shapes, nursery art",
+  fiaba:"fairy tale illustration, magical forest, enchanted castle, glowing fairies, soft painterly, warm golden light, dreamy storybook",
+  fantasy:"epic fantasy illustration, painterly, magical world, medieval architecture, mystical creatures, dramatic lighting, heroic",
+  spazio:"space exploration illustration, colorful planets, friendly rockets, cute aliens, starfield, vibrant cosmic colors, children sci-fi",
   dino:"dinosaur adventure, lush prehistoric jungle, cute friendly dinosaurs, bright tropical plants, children book style",
-  oceano:"underwater ocean, colorful coral reef, friendly fish, blue-green water, light rays, children book style",
+  oceano:"underwater ocean, colorful coral reef, friendly fish and sea creatures, blue-green water, light rays, children book style",
   anime:"anime illustration, manga art, clean line art, vibrant colors, expressive big eyes, studio ghibli inspired",
-  cyberpunk:"cyberpunk digital art, neon lights, dark rainy city, glowing circuits, blue cyan neon",
-  noir:"film noir, high contrast black and white, dramatic shadows, moody atmosphere, rain-soaked streets",
-  natale:"Christmas illustration, cozy winter, Santa Claus, snow village, warm glowing lights, festive, children holiday",
+  cyberpunk:"cyberpunk digital art, neon lights, dark rainy city, glowing circuits, futuristic, blue cyan neon",
+  noir:"film noir style, high contrast black and white, dramatic shadows, moody atmosphere, rain-soaked streets",
+  natale:"Christmas illustration, cozy winter, Santa Claus, snow village, warm glowing lights, festive, children holiday book",
   custom:""
 };
-const TCSS={bimbi:'theme-bimbi',fiaba:'theme-fiaba',fantasy:'theme-fantasy',spazio:'theme-spazio',dino:'theme-dino',oceano:'theme-oceano',anime:'theme-anime',cyberpunk:'theme-cyberpunk',noir:'theme-noir',natale:'theme-natale',custom:''};
+const THEME_CLS={bimbi:'th-bimbi',fiaba:'th-fiaba',fantasy:'th-fantasy',spazio:'th-spazio',dino:'th-dino',oceano:'th-oceano',anime:'th-anime',cyberpunk:'th-cyberpunk',noir:'th-noir',natale:'th-natale',custom:''};
+const DARK_THEMES=['cyberpunk','noir','spazio'];
 
+// ── INIT ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
   // Puter ready check
   let checks=0;
   const chk=setInterval(()=>{
-    checks++;
     const st=document.getElementById('puter-status');
     if(typeof puter!=='undefined'&&puter.ai){
       clearInterval(chk);
-      if(st){st.textContent='✅ Puter pronto';st.style.color='var(--green)';}
-      setTimeout(()=>{if(st)st.style.display='none';},3000);
-    } else if(checks>30){
+      st.textContent='✅ Puter pronto'; st.style.color='var(--green)';
+      setTimeout(()=>st.style.display='none',3000);
+    } else if(++checks>30){
       clearInterval(chk);
-      if(st){st.textContent='⚠️ Puter non disponibile — usa Pro';st.style.color='var(--amber)';}
+      st.textContent='⚠️ Puter non disponibile'; st.style.color='var(--amber)';
     }
   },400);
+
+  // Theme grid
   document.getElementById('tgrid').addEventListener('click',e=>{
     const b=e.target.closest('.tbtn'); if(!b) return;
     document.querySelectorAll('.tbtn').forEach(x=>x.classList.remove('active'));
     b.classList.add('active'); selTheme=b.dataset.t;
     document.getElementById('custom-field').style.display=selTheme==='custom'?'block':'none';
   });
+
+  // Main color palette
   document.getElementById('palette').addEventListener('click',e=>{
-    const s=e.target.closest('.sw'); if(!s) return;
-    document.querySelectorAll('.sw').forEach(x=>x.classList.remove('active'));
+    const s=e.target.closest('.sw[data-c]'); if(!s) return;
+    document.querySelectorAll('#palette .sw').forEach(x=>x.classList.remove('active'));
     s.classList.add('active'); selColor=s.dataset.c;
-    // Update colored previews
-    const bgPrev=document.getElementById('bg-colored-preview');
-    if(bgPrev) bgPrev.style.background=hexToRgba(selColor,0.25);
-    const fPrev=document.getElementById('frame-colored-preview');
-    if(fPrev){fPrev.style.background=hexToRgba(selColor,0.7);}
+    updateColorPreviews();
   });
-  document.getElementById('txt-color-palette').addEventListener('click',e=>{
-    const s=e.target.closest('[data-tc]'); if(!s) return;
-    // Remove active from all txt color swatches
-    document.querySelectorAll('#txt-color-palette [data-tc]').forEach(x=>{
-      x.style.outline='none';
-      x.style.transform='scale(1)';
-    });
-    // Set active on clicked
-    s.style.outline='2px solid var(--gold)';
-    s.style.outlineOffset='2px';
-    s.style.transform='scale(1.15)';
-    selTextColor=s.dataset.tc;
-    // Apply to already rendered pages immediately
-    document.querySelectorAll('.pbody').forEach(el=>el.style.color=selTextColor);
-    document.querySelectorAll('.pchap').forEach(el=>el.style.color=selTextColor);
+
+  // Text color palette
+  document.getElementById('txt-palette').addEventListener('click',e=>{
+    const s=e.target.closest('.sw[data-tc]'); if(!s) return;
+    document.querySelectorAll('#txt-palette .sw').forEach(x=>x.classList.remove('active'));
+    s.classList.add('active'); selTextColor=s.dataset.tc;
+    // Apply immediately to rendered pages
+    document.querySelectorAll('.pbody-txt').forEach(el=>el.style.color=selTextColor);
+    document.querySelectorAll('.pchap-lbl').forEach(el=>el.style.color=selTextColor);
   });
-  document.getElementById('font-size')?.addEventListener('change',e=>selFontSize=e.target.value);
-  document.getElementById('font-style')?.addEventListener('change',e=>selFontStyle=e.target.value);
-  // Init text color first swatch as selected
-  const firstTc=document.querySelector('#txt-color-palette [data-tc]');
-  if(firstTc){firstTc.style.outline='2px solid var(--gold)';firstTc.style.outlineOffset='2px';}
-  const pr=document.getElementById('prange');
-  const ir=document.getElementById('irange');
+
+  // Font controls
+  document.getElementById('font-size').addEventListener('change',e=>selFontSize=e.target.value);
+  document.getElementById('font-style').addEventListener('change',e=>selFontStyle=e.target.value);
+
+  // Range sliders
+  const pr=document.getElementById('prange'), ir=document.getElementById('irange');
+  // Sync irange max with initial prange value
+  ir.max=pr.value;
+  if(parseInt(ir.value)>parseInt(pr.value)){ir.value=pr.value;document.getElementById('ival').textContent=pr.value;}
   pr.addEventListener('input',()=>{
     document.getElementById('pval').textContent=pr.value;
-    if(parseInt(ir.value)>parseInt(pr.value)){ir.value=pr.value;document.getElementById('ival').textContent=pr.value;}
     ir.max=pr.value;
+    if(parseInt(ir.value)>parseInt(pr.value)){
+      ir.value=pr.value;
+      document.getElementById('ival').textContent=pr.value;
+    }
   });
   ir.addEventListener('input',()=>document.getElementById('ival').textContent=ir.value);
+
+  // Init color previews
+  updateColorPreviews();
 });
 
-function checkKey(id){
-  const inputs={groq:'groq-key',gemini:'gemini-key',claude:'claude-key',together:'together-key',stability:'stability-key',openai:'openai-key'};
-  const el=document.getElementById(inputs[id]);
-  const st=document.getElementById('ks-'+id);
-  if(!el||!st) return;
-  st.className='key-status '+(el.value.trim().length>10?'ok':'');
+// ── HELPERS ───────────────────────────────────────────────
+function updateColorPreviews(){
+  const bgPrev=document.getElementById('bg-color-preview');
+  if(bgPrev) bgPrev.style.background=hexToRgba(selColor,0.3);
+  const fPrev=document.getElementById('frame-color-preview');
+  if(fPrev) fPrev.style.background=hexToRgba(selColor,0.75);
+}
+
+function hexToRgba(hex,a){
+  const h=hex.replace('#','');
+  const r=parseInt(h.slice(0,2),16), g=parseInt(h.slice(2,4),16), b=parseInt(h.slice(4,6),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function getPageBg(){
+  if(selBg==='white') return '#ffffff';
+  if(selBg==='cream') return '#fdf8f0';
+  if(selBg==='light') return '#f0f4ff';
+  if(selBg==='colored') return hexToRgba(selColor,0.1);
+  return '#ffffff';
+}
+
+function getFrameCSS(dark){
+  if(selFrame==='none') return '';
+  if(selFrame==='box') return `border:1px solid ${dark?'rgba(255,255,255,0.2)':'#ccc'};border-radius:4px;padding:8px`;
+  if(selFrame==='rounded') return `border:1px solid ${dark?'rgba(255,255,255,0.2)':'#ccc'};border-radius:14px;padding:8px`;
+  if(selFrame==='shadow') return `background:${dark?'rgba(255,255,255,0.08)':'#fff'};box-shadow:2px 3px 10px rgba(0,0,0,0.12);border-radius:6px;padding:8px`;
+  if(selFrame==='colored') return `background:${hexToRgba(selColor,0.15)};border:1px solid ${hexToRgba(selColor,0.4)};border-radius:6px;padding:8px`;
+  if(selFrame==='vintage') return `border:2px double ${dark?'rgba(255,255,255,0.3)':'#888'};border-radius:2px;padding:8px`;
+  return '';
+}
+
+function getFontFamily(){
+  if(selFontStyle==='serif') return "'Playfair Display',Georgia,serif";
+  if(selFontStyle==='round') return "Nunito,'DM Sans',sans-serif";
+  return "'DM Sans',system-ui,sans-serif";
+}
+
+function getFontSizePx(){
+  return selFontSize==='small'?'9px':selFontSize==='large'?'12px':'10px';
+}
+
+function getNextLayout(){
+  if(selLayout!=='auto') return selLayout;
+  return LAYOUTS[(imgCounter++)%LAYOUTS.length];
+}
+
+function esc(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── MODE & PROVIDER SWITCHES ──────────────────────────────
+function setMode(m){
+  mode=m;
+  document.getElementById('btn-free').className='mode-btn'+(m==='free'?' active':'');
+  document.getElementById('btn-pro').className='mode-btn'+(m==='pro'?' active':'');
+  document.getElementById('sec-free').style.display=m==='free'?'block':'none';
+  document.getElementById('sec-pro-txt').style.display=m==='pro'?'block':'none';
+  document.getElementById('sec-pro-img').style.display=m==='pro'?'block':'none';
 }
 
 function swT(p,btn){
   tProv=p;
   document.querySelectorAll('#ttabs .tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
-  ['groq','gemini','claude'].forEach(id=>document.getElementById('pt-'+id).classList.toggle('show',id===p));
+  ['groq','gemini','claude'].forEach(id=>{
+    const el=document.getElementById('pt-'+id);
+    if(!el) return;
+    if(id===p){el.classList.add('show');}else{el.classList.remove('show');}
+  });
 }
+
 function swI(p,btn){
   iProv=p;
   document.querySelectorAll('#itabs .tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
-  ['together','stability','dalle'].forEach(id=>document.getElementById('pi-'+id).classList.toggle('show',id===p));
+  ['together','stability','dalle'].forEach(id=>{
+    const el=document.getElementById('pi-'+id);
+    if(!el) return;
+    if(id===p){el.classList.add('show');}else{el.classList.remove('show');}
+  });
 }
 
-function addScene(txt=''){scenes.push({id:Date.now()+Math.random(),text:txt});renderScenes();}
-function removeScene(id){scenes=scenes.filter(s=>s.id!==id);renderScenes();}
-function renderScenes(){
-  document.getElementById('scenes-list').innerHTML=scenes.map((s,i)=>`
-    <div class="scene-row">
-      <div class="snum">${i+1}</div>
-      <input type="text" value="${esc(s.text)}" placeholder="Descrivi il momento..." oninput="scenes[${i}].text=this.value">
-      <button class="del" onclick="removeScene(${s.id})">×</button>
-    </div>`).join('');
+function updateKeyDot(dotId,input){
+  const dot=document.getElementById(dotId);
+  if(dot) dot.className='key-dot'+(input.value.trim().length>10?' ok':'');
 }
 
+// ── LAYOUT / BG / FRAME PICKERS ───────────────────────────
+function pickLayout(val,btn){
+  selLayout=val;
+  document.querySelectorAll('#layout-grid .sel-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function pickBg(val,btn){
+  selBg=val;
+  document.querySelectorAll('#bg-grid .sel-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function pickFrame(val,btn){
+  selFrame=val;
+  document.querySelectorAll('#frame-grid .sel-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── GENERATE ─────────────────────────────────────────────
 async function generate(){
   if(isGen) return;
   const plot=document.getElementById('plot').value.trim();
   const title=document.getElementById('book-title').value.trim()||'Il mio Storybook';
   if(!plot){showToast('Inserisci la trama!'); return;}
 
-  const keys={groq:document.getElementById('groq-key').value.trim(),gemini:document.getElementById('gemini-key').value.trim(),claude:document.getElementById('claude-key').value.trim(),together:document.getElementById('together-key').value.trim(),stability:document.getElementById('stability-key').value.trim(),openai:document.getElementById('openai-key').value.trim()};
-
   if(mode==='free'){
-    if(typeof puter==='undefined'||!puter.ai){showToast('Puter.js non ancora pronto — aspetta ✅ Puter pronto'); isGen=false; document.getElementById('gen-btn').disabled=false; return;}
+    if(typeof puter==='undefined'||!puter.ai){
+      showToast('Puter.js non ancora pronto — aspetta ✅'); return;
+    }
   } else {
+    const keys=getKeys();
     if(tProv==='groq'&&!keys.groq){showToast('Inserisci chiave Groq'); return;}
     if(tProv==='gemini'&&!keys.gemini){showToast('Inserisci chiave Gemini'); return;}
     if(tProv==='claude'&&!keys.claude){showToast('Inserisci chiave Claude'); return;}
@@ -723,79 +758,86 @@ async function generate(){
     if(iProv==='dalle'&&!keys.openai){showToast('Inserisci chiave OpenAI'); return;}
   }
 
-  isGen=true; genPages=[];
+  isGen=true; genPages=[]; imgCounter=0;
   document.getElementById('gen-btn').disabled=true;
   showProg(true);
 
   const totalP=parseInt(document.getElementById('prange').value);
   const totalI=parseInt(document.getElementById('irange').value);
   const lang=document.getElementById('language').value;
-  const layout=selLayoutMode; // usa la selezione visiva
-  const themeStyle=selTheme==='custom'?(document.getElementById('custom-theme').value||'illustrative art'):THEMES[selTheme];
+  const themeStyle=selTheme==='custom'
+    ?(document.getElementById('custom-theme').value.trim()||'illustrative art')
+    :THEMES[selTheme];
 
-  let step=0; const tot=2+totalI+1;
+  let step=0; const tot=2+totalI;
   const log=(msg,type='')=>{
     step++;
-    document.getElementById('pbar').style.width=Math.min(Math.round(step/tot*100),98)+'%';
-    const el=document.createElement('div'); el.className='le '+type; el.textContent='› '+msg;
-    const l=document.getElementById('plog'); l.appendChild(el); l.scrollTop=l.scrollHeight;
+    document.getElementById('pbar').style.width=Math.min(Math.round(step/tot*100),97)+'%';
+    const el=document.createElement('div');
+    el.className='le '+(type||'');
+    el.textContent='› '+msg;
+    const l=document.getElementById('plog');
+    l.appendChild(el); l.scrollTop=l.scrollHeight;
   };
 
   try{
-    // STEP 1: AI genera testo + decide quali pagine illustrare + prompt immagine
+    // ── 1. Generate text + image plan ──
     log('Generazione testo e piano illustrazioni...');
-    const tRaw=await callText(`Sei un autore e art director di libri illustrati per bambini.
+    const prompt=`Sei un autore e art director di libri illustrati per bambini.
 Trama: "${plot}"
 Tema visivo: ${themeStyle}
 Colore dominante: ${selColor}
-Numero pagine totali: ${totalP} (inclusa copertina)
-Numero pagine da illustrare: ${totalI} (esclusa copertina che ha sempre un'immagine)
+Pagine totali: ${totalP} (inclusa copertina)
+Pagine con illustrazione: ${totalI} (la copertina ha sempre un'immagine, non conta)
 Lingua: ${lang}
 
-Crea il libro completo. Regole:
-- Pagina 1 = copertina (sempre con immagine)
-- Distribuisci le ${totalI} immagini in modo narrativo (non consecutive, sparse nel libro)
-- Per le pagine con immagine, scrivi un prompt visivo dettagliato in inglese per il generatore AI
-- Testo max 70 parole per pagina, adatto all'età
+Regole:
+- Pagina 1 = copertina (type:"cover", ha sempre imgPrompt)
+- Distribuisci le ${totalI} illustrazioni in modo narrativo, sparse nel libro, non consecutive
+- Per ogni pagina con immagine includi imgPrompt in inglese, dettagliato, nello stile: "${themeStyle}", colore dominante ${selColor}
+- Testo massimo 70 parole per pagina, adatto ai bambini
+- Copertina: imgPrompt deve descrivere una bella copertina professionale
 
-RISPONDI SOLO con JSON array, nient'altro:
+RISPONDI SOLO con JSON valido, nient'altro:
 [
-  {"type":"cover","title":"${title}","subtitle":"sottotitolo breve","imgPrompt":"detailed image prompt in english for book cover, ${themeStyle}, ${selColor} dominant color, title ${title}, professional children book cover art"},
-  {"type":"text","title":"titolo breve","text":"testo pagina..."},
-  {"type":"image","title":"titolo breve","text":"testo pagina...","imgPrompt":"detailed image prompt in english describing exactly this scene, ${themeStyle}, ${selColor} dominant color, children book illustration"},
+  {"type":"cover","title":"${title}","subtitle":"sottotitolo breve","imgPrompt":"book cover illustration..."},
+  {"type":"text","title":"Titolo capitolo","text":"Testo della pagina..."},
+  {"type":"image","title":"Titolo capitolo","text":"Testo della pagina...","imgPrompt":"scene illustration..."},
   ...
-]`);
+]`;
 
+    const raw=await callText(prompt);
     let pages=[];
-    try{pages=JSON.parse(tRaw.replace(/```json|```/g,'').trim());}
-    catch{throw new Error('Parsing testo fallito — riprova');}
-    log(pages.length+' pagine create, '+ pages.filter(p=>p.imgPrompt).length+' illustrazioni pianificate','ok');
+    try{ pages=JSON.parse(raw.replace(/```json\n?|```/g,'').trim()); }
+    catch(e){ throw new Error('Errore parsing JSON — riprova'); }
+    if(!Array.isArray(pages)||pages.length<2) throw new Error('Risposta non valida — riprova');
+    log(pages.length+' pagine · '+pages.filter(p=>p.imgPrompt).length+' illustrazioni','ok');
 
-    // STEP 2: Assemble pages (AI already decided types and positions)
-    genPages = pages.map((p,i)=>({
+    // ── 2. Build pages structure ──
+    genPages=pages.map((p,i)=>({
       ...p,
-      imgUrl: null,
-      imgLayout: p.type==='cover'?'cover':layout,
-      imgSlot: p.imgPrompt ? i : -1
+      imgUrl:null,
+      imgLayout: p.type==='cover'?'cover':(p.imgPrompt?getNextLayout():'none')
     }));
     renderPreview(genPages);
-    document.getElementById('prev-info').textContent=genPages.length+' pagine · '+tProv+' + '+iProv;
-    log('Testo pronto! Generazione immagini in corso...','ok');
+    document.getElementById('prev-info').textContent=
+      genPages.length+' pagine · '+(mode==='free'?'Puter.js':tProv+'+'+iProv);
+    log('Testo pronto! Generazione immagini...','ok');
 
-    // STEP 3: Generate images for each page that has an imgPrompt
+    // ── 3. Generate images ──
     for(let i=0;i<genPages.length;i++){
       const page=genPages[i];
       if(!page.imgPrompt) continue;
-      const label=page.type==='cover'?'Copertina':'Immagine p.'+(i+1);
-      log(label+'...');
+      const lbl=page.type==='cover'?'Copertina':'Immagine p.'+(i+1);
+      log(lbl+'...');
       try{
-        let url=await genImg(page.imgPrompt, keys);
+        const url=await callImage(page.imgPrompt);
         genPages[i].imgUrl=url;
-        if(page.type==='cover') updateCover(i,url);
+        if(page.type==='cover') updateCoverImg(i,url);
         else updatePageImg(i,url);
-        log(label+' ok','ok');
+        log(lbl+' ✓','ok');
       }catch(e){
-        log(label+' fallita: '+e.message,'err');
+        log(lbl+' fallita: '+e.message,'err');
       }
     }
 
@@ -806,24 +848,87 @@ RISPONDI SOLO con JSON array, nient'altro:
     showToast('Errore: '+err.message);
     log('Errore: '+err.message,'err');
   }
-  isGen=false; document.getElementById('gen-btn').disabled=false;
+  isGen=false;
+  document.getElementById('gen-btn').disabled=false;
 }
 
+function getKeys(){
+  return{
+    groq: document.getElementById('groq-key')?.value.trim()||'',
+    gemini: document.getElementById('gemini-key')?.value.trim()||'',
+    claude: document.getElementById('claude-key')?.value.trim()||'',
+    together: document.getElementById('together-key')?.value.trim()||'',
+    stability: document.getElementById('stability-key')?.value.trim()||'',
+    openai: document.getElementById('openai-key')?.value.trim()||''
+  };
+}
+
+// ── TEXT API ─────────────────────────────────────────────
 async function callText(prompt){
   if(mode==='free'){
     const model=document.getElementById('puter-txt').value;
     const resp=await puter.ai.chat(prompt,{model});
     if(typeof resp==='string') return resp;
-    return resp?.message?.content||resp?.text||resp?.content?.[0]?.text||JSON.stringify(resp);
+    return resp?.message?.content||resp?.text||resp?.content?.[0]?.text||'';
   }
-  if(tProv==='groq') return callGroq(document.getElementById('groq-key').value.trim(),prompt);
-  if(tProv==='gemini') return callGemini(document.getElementById('gemini-key').value.trim(),prompt);
-  if(tProv==='claude') return callClaude(document.getElementById('claude-key').value.trim(),prompt);
+  const k=getKeys();
+  if(tProv==='groq') return callGroq(k.groq,prompt);
+  if(tProv==='gemini') return callGemini(k.gemini,prompt);
+  if(tProv==='claude') return callClaude(k.claude,prompt);
+}
+
+async function callGroq(k,p){
+  const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+    body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:4000,messages:[{role:'user',content:p}]})});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'Groq '+r.status);}
+  return (await r.json()).choices?.[0]?.message?.content||'';
+}
+async function callGemini(k,p){
+  const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${k}`,
+    {method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({contents:[{parts:[{text:p}]}],generationConfig:{maxOutputTokens:4000}})});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'Gemini '+r.status);}
+  return (await r.json()).candidates?.[0]?.content?.parts?.[0]?.text||'';
+}
+async function callClaude(k,p){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:p}]})});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'Claude '+r.status);}
+  return (await r.json()).content?.[0]?.text||'';
+}
+
+// ── IMAGE API ─────────────────────────────────────────────
+async function callImage(prompt){
+  if(mode==='free') return callPuterImg(prompt);
+  const k=getKeys();
+  if(iProv==='together') return callTogether(k.together,prompt);
+  if(iProv==='stability') return callStability(k.stability,prompt);
+  if(iProv==='dalle') return callDalle(k.openai,prompt);
+}
+
+async function callPuterImg(prompt){
+  const model=document.getElementById('puter-img').value;
+  const tryM=async(m)=>{
+    const resp=await puter.ai.txt2img(prompt,{model:m});
+    if(resp instanceof HTMLImageElement){
+      try{ return await imgElToB64(resp); }catch{ return resp.src; }
+    }
+    if(resp instanceof Blob) return await blobToB64(URL.createObjectURL(resp));
+    if(typeof resp==='string') return resp;
+    return resp?.src||resp?.url||null;
+  };
+  try{ return await tryM(model); }
+  catch(e){
+    if(model!=='flux-schnell') return await tryM('flux-schnell');
+    throw e;
+  }
 }
 
 async function imgElToB64(imgEl){
   return new Promise((res,rej)=>{
-    const convert=()=>{
+    const go=()=>{
       try{
         const c=document.createElement('canvas');
         c.width=imgEl.naturalWidth||1024; c.height=imgEl.naturalHeight||1024;
@@ -831,281 +936,222 @@ async function imgElToB64(imgEl){
         res(c.toDataURL('image/jpeg',0.92));
       }catch(e){rej(e);}
     };
-    if(imgEl.complete&&imgEl.naturalWidth>0) convert();
-    else{imgEl.onload=convert; imgEl.onerror=rej;}
+    if(imgEl.complete&&imgEl.naturalWidth>0) go();
+    else{imgEl.onload=go; imgEl.onerror=rej;}
   });
 }
-
-async function genImg(prompt,keys){
-  if(mode==='free'){
-    const model=document.getElementById('puter-img').value;
-    const tryModel=async(m)=>{
-      const resp=await puter.ai.txt2img(prompt,{model:m});
-      if(resp instanceof HTMLImageElement){
-        try{return await imgElToB64(resp);}catch{return resp.src;}
-      }
-      if(resp instanceof Blob){
-        const burl=URL.createObjectURL(resp);
-        try{return await blobToB64(burl);}catch{return burl;}
-      }
-      if(typeof resp==='string') return resp;
-      return resp?.src||resp?.url||null;
-    };
-    try{ return await tryModel(model); }
-    catch(e){
-      if(model!=='flux-schnell') return await tryModel('flux-schnell');
-      throw e;
-    }
-  }
-  if(iProv==='together') return genTogether(keys.together,prompt);
-  if(iProv==='stability') return genStability(keys.stability,prompt);
-  if(iProv==='dalle') return genDalle(keys.openai,prompt);
-}async function callGroq(k,p){
-  const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:4000,messages:[{role:'user',content:p}]})});
-  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'Groq error '+r.status);}
-  return (await r.json()).choices?.[0]?.message?.content||'';
-}
-async function callGemini(k,p){
-  const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:p}]}],generationConfig:{maxOutputTokens:4000}})});
-  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'Gemini error '+r.status);}
-  return (await r.json()).candidates?.[0]?.content?.parts?.[0]?.text||'';
-}
-async function callClaude(k,p){
-  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:p}]})});
-  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'Claude error '+r.status);}
-  return (await r.json()).content?.[0]?.text||'';
+async function blobToB64(url){
+  const r=await fetch(url); const b=await r.blob();
+  return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=rej;fr.readAsDataURL(b);});
 }
 
-async function genTogether(k,p){
-  const r=await fetch('https://api.together.xyz/v1/images/generations',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:'black-forest-labs/FLUX.1-schnell-Free',prompt:p.slice(0,1000),width:1024,height:1024,steps:4,n:1})});
-  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'Together error '+r.status);}
+async function callTogether(k,p){
+  const r=await fetch('https://api.together.xyz/v1/images/generations',{method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+    body:JSON.stringify({model:'black-forest-labs/FLUX.1-schnell-Free',prompt:p.slice(0,1000),width:1024,height:1024,steps:4,n:1})});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'Together '+r.status);}
   return (await r.json()).data?.[0]?.url||null;
 }
-async function genStability(k,p){
-  const f=new FormData();f.append('prompt',p.slice(0,2000));f.append('output_format','jpeg');
-  const r=await fetch('https://api.stability.ai/v2beta/stable-image/generate/core',{method:'POST',headers:{'Authorization':'Bearer '+k,'Accept':'application/json'},body:f});
-  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.message||'Stability error '+r.status);}
+async function callStability(k,p){
+  const f=new FormData(); f.append('prompt',p.slice(0,2000)); f.append('output_format','jpeg');
+  const r=await fetch('https://api.stability.ai/v2beta/stable-image/generate/core',
+    {method:'POST',headers:{'Authorization':'Bearer '+k,'Accept':'application/json'},body:f});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.message||'Stability '+r.status);}
   return 'data:image/jpeg;base64,'+(await r.json()).image;
 }
-async function genDalle(k,p){
-  const r=await fetch('https://api.openai.com/v1/images/generations',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify({model:'dall-e-3',prompt:p.slice(0,4000),n:1,size:'1024x1024',quality:'standard'})});
-  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'DALL-E error '+r.status);}
+async function callDalle(k,p){
+  const r=await fetch('https://api.openai.com/v1/images/generations',{method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
+    body:JSON.stringify({model:'dall-e-3',prompt:p.slice(0,4000),n:1,size:'1024x1024',quality:'standard'})});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'DALL-E '+r.status);}
   return (await r.json()).data?.[0]?.url||null;
 }
 
-function assemble(pages,imgs,layout){
-  const res=[]; let idx=0;
-  const step=Math.max(1,Math.floor(pages.length/(imgs.length+1)));
-  const pos=new Set();
-  for(let i=0;i<imgs.length;i++) pos.add(Math.min(1+(i+1)*step-1,pages.length-1));
-  for(let i=0;i<pages.length;i++){
-    const p=pages[i];
-    if(i===0&&p.type==='cover') res.push({...p,type:'cover'});
-    else if(pos.has(i)&&idx<imgs.length) res.push({...p,type:'image',imgUrl:null,imgLayout:layout,imgSlot:idx++});
-    else res.push({...p,type:'text'});
-  }
-  return res;
-}
-
+// ── RENDER ────────────────────────────────────────────────
 function renderPreview(pages){
-  const tc=TCSS[selTheme]||'';
-  resetImgCounter();
+  const tc=THEME_CLS[selTheme]||'';
   document.getElementById('pgrid').innerHTML=pages.map((p,i)=>buildCard(p,i,tc)).join('');
 }
-  const watermark=`<div style="position:absolute;bottom:4px;left:0;right:0;text-align:center;font-size:7px;opacity:0.35;font-family:var(--font-b);letter-spacing:0.05em;color:inherit;pointer-events:none">✨ baby-libri.it</div>`;
-  tc=tc||TCSS[selTheme]||'';
-  const dark=['cyberpunk','noir','spazio'].includes(selTheme);
+
+function buildCard(page,idx,tc){
+  const dark=DARK_THEMES.includes(selTheme);
   const pageBg=getPageBg();
   const ff=getFontFamily();
-  const fs=getFontSize();
-  const frameStyle=getFrameStyle(dark);
-  const pn=`<div class="pnum">p.${idx+1}</div>`;
-  const textBlock=`<div class="ptxt" style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:${frameStyle?'6px':'8px 12px'}">
-    <div style="${frameStyle}">
-      <div class="pchap" id="pc-${idx}" style="color:${selTextColor};opacity:0.5">${esc(page.title||'')}</div>
-      <div class="pbody" id="pb-${idx}" style="font-size:${fs};font-family:${ff};line-height:1.6;color:${selTextColor}">${esc(page.text||'')}</div>
-    </div></div>`;
+  const fs=getFontSizePx();
+  const frameCSS=getFrameCSS(dark);
+  const lay=page.imgLayout&&page.imgLayout!=='none'?page.imgLayout:'top';
+  const pnum=`<div class="pnum">p.${idx+1}</div>`;
+  const wm=`<div class="watermark" style="color:${dark?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.3)'}">✨ baby-libri.it</div>`;
 
+  const textBlock=`
+    <div class="ptxt-area" style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:${frameCSS?'5px 8px':'7px 10px'}">
+      <div style="${frameCSS}">
+        <div class="pchap-lbl" id="pc-${idx}" style="color:${selTextColor}">${esc(page.title||'')}</div>
+        <div class="pbody-txt" id="pb-${idx}" style="font-size:${fs};font-family:${ff};color:${selTextColor}">${esc(page.text||'')}</div>
+      </div>
+    </div>`;
+
+  // COVER
   if(page.type==='cover'){
-    const bg=page.imgUrl?`style="background-image:url(${page.imgUrl});background-size:cover;background-position:center"`:'';
-    const overlay=page.imgUrl?`<div style="position:absolute;inset:0;background:rgba(0,0,0,0.4);border-radius:6px"></div>`:'';
-    return `<div class="pc is-cover ${tc}" id="cc-${idx}" onclick="openEdit(${idx})" ${bg}>
-      ${pn}${overlay}
-      <div style="position:relative;z-index:1">
-        <div class="cover-t" id="ct-${idx}" style="font-family:${ff};${page.imgUrl?'color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.8)':''}">${esc(page.title)}</div>
-        <div class="cover-s" id="cs-${idx}" style="${page.imgUrl?'color:rgba(255,255,255,0.85)':''}">${esc(page.subtitle||'')}</div>
-      </div>${watermark}${editHTML(idx,'cover',page)}</div>`;
+    const bgS=page.imgUrl?`style="background-image:url('${page.imgUrl}');background-size:cover;background-position:center"`:'';
+    const ov=page.imgUrl?`<div style="position:absolute;inset:0;background:rgba(0,0,0,0.42);border-radius:8px"></div>`:'';
+    return `<div class="pc is-cover ${tc}" id="cc-${idx}" onclick="openEdit(${idx})" ${bgS}>
+      ${pnum}${ov}
+      <div style="position:relative;z-index:2">
+        <div class="cover-title" id="ct-${idx}" style="font-family:${ff};${page.imgUrl?'color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.85)':''}">${esc(page.title||'')}</div>
+        <div class="cover-sub" id="cs-${idx}" style="${page.imgUrl?'color:rgba(255,255,255,0.85)':''}">${esc(page.subtitle||'')}</div>
+      </div>
+      ${wm}${editHTML(idx,'cover',page)}</div>`;
   }
-  if(page.type==='image'||page.imgPrompt){
-    const imgH=page.imgUrl?`<img src="${page.imgUrl}" alt="ill" id="img-${idx}">`:`<div class="pimg-spin" id="spin-${idx}">⏳</div>`;
-    const lay=page.imgLayout||getLayout();
+
+  // PAGE WITH IMAGE
+  if(page.imgPrompt||page.type==='image'){
+    const imgContent=page.imgUrl
+      ?`<img src="${page.imgUrl}" alt="" id="img-${idx}">`
+      :`<div class="pimg-spin" id="spin-${idx}">⏳</div>`;
+
     if(lay==='full') return `<div class="pc ${tc}" style="background:${pageBg}" onclick="openEdit(${idx})">
-      ${pn}<div class="pimg" style="flex:1" id="pimg-${idx}">${imgH}</div>
-      ${watermark}${editHTML(idx,'image',page)}</div>`;
-    const top=lay==='top';
+      ${pnum}<div class="pimg-wrap" style="flex:1" id="pimg-${idx}">${imgContent}</div>
+      ${wm}${editHTML(idx,'image',page)}</div>`;
+
+    const topImg=lay==='top';
     return `<div class="pc ${tc}" style="background:${pageBg}" onclick="openEdit(${idx})">
-      ${pn}
-      ${top?`<div class="pimg" style="height:52%" id="pimg-${idx}">${imgH}</div>`:''}
+      ${pnum}
+      ${topImg?`<div class="pimg-wrap" style="height:52%" id="pimg-${idx}">${imgContent}</div>`:''}
       ${textBlock}
-      ${!top?`<div class="pimg" style="height:52%" id="pimg-${idx}">${imgH}</div>`:''}
-      ${watermark}${editHTML(idx,'image',page)}</div>`;
+      ${!topImg?`<div class="pimg-wrap" style="height:52%" id="pimg-${idx}">${imgContent}</div>`:''}
+      ${wm}${editHTML(idx,'image',page)}</div>`;
   }
-  return `<div class="pc text-only ${tc}" style="background:${pageBg}" onclick="openEdit(${idx})">
-    ${pn}${textBlock}${watermark}${editHTML(idx,'text',page)}</div>`;
+
+  // TEXT ONLY
+  return `<div class="pc ${tc}" style="background:${pageBg}" onclick="openEdit(${idx})">
+    ${pnum}
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-start;padding:${frameCSS?'8px':'10px 12px'}">
+      <div style="${frameCSS}">
+        <div class="pchap-lbl" id="pc-${idx}" style="color:${selTextColor}">${esc(page.title||'')}</div>
+        <div class="pbody-txt" id="pb-${idx}" style="font-size:${fs};font-family:${ff};color:${selTextColor}">${esc(page.text||'')}</div>
+      </div>
+    </div>
+    ${wm}${editHTML(idx,'text',page)}</div>`;
 }
+
 function editHTML(idx,type,page){
   return `<div class="eo" id="eo-${idx}" onclick="event.stopPropagation()">
-    <div class="elbl">Titolo</div><input type="text" id="ei-t-${idx}" value="${esc(page.title||'')}">
-    ${type!=='cover'?`<div class="elbl" style="margin-top:3px">Testo</div><textarea id="ei-b-${idx}" rows="5">${esc(page.text||'')}</textarea>`:''}
+    <div class="elbl">Titolo</div>
+    <input type="text" id="ei-t-${idx}" value="${esc(page.title||'')}">
+    ${type!=='cover'?`<div class="elbl" style="margin-top:4px">Testo</div>
+    <textarea id="ei-b-${idx}" rows="5">${esc(page.text||'')}</textarea>`:''}
     <div class="eo-btns">
       <button class="ecancel" onclick="closeEdit(${idx})">Annulla</button>
       <button class="eok" onclick="saveEdit(${idx},'${type}')">✓ Salva</button>
     </div></div>`;
 }
-function openEdit(i){document.querySelectorAll('.eo').forEach(e=>e.classList.remove('show'));document.getElementById('eo-'+i)?.classList.add('show');}
+
+function openEdit(i){
+  document.querySelectorAll('.eo').forEach(e=>e.classList.remove('show'));
+  document.getElementById('eo-'+i)?.classList.add('show');
+}
 function closeEdit(i){document.getElementById('eo-'+i)?.classList.remove('show');}
 function saveEdit(i,type){
-  const t=document.getElementById('ei-t-'+i).value; genPages[i].title=t;
+  const t=document.getElementById('ei-t-'+i).value;
+  genPages[i].title=t;
   if(type!=='cover'){
-    const b=document.getElementById('ei-b-'+i).value; genPages[i].text=b;
+    const b=document.getElementById('ei-b-'+i).value;
+    genPages[i].text=b;
     const pb=document.getElementById('pb-'+i); if(pb) pb.textContent=b;
     const pc=document.getElementById('pc-'+i); if(pc) pc.textContent=t;
-  }else{const ct=document.getElementById('ct-'+i); if(ct) ct.textContent=t;}
+  }else{
+    const ct=document.getElementById('ct-'+i); if(ct) ct.textContent=t;
+  }
   closeEdit(i);
 }
-function updatePageImg(pi,url){
-  const sp=document.getElementById('spin-'+pi);
-  if(sp){const img=document.createElement('img');img.src=url;img.alt='ill';img.id='img-'+pi;sp.replaceWith(img);}
+
+function updatePageImg(idx,url){
+  const spin=document.getElementById('spin-'+idx);
+  if(spin){const img=document.createElement('img');img.src=url;img.alt='';img.id='img-'+idx;spin.replaceWith(img);}
 }
-function updateCover(idx,url){
-  const c=document.getElementById('cc-'+idx); if(!c) return;
-  c.style.backgroundImage=`url(${url})`; c.style.backgroundSize='cover'; c.style.backgroundPosition='center';
-  if(!c.querySelector('.cov-ov')){const d=document.createElement('div');d.className='cov-ov';d.style.cssText='position:absolute;inset:0;background:rgba(0,0,0,0.4);border-radius:6px';c.insertBefore(d,c.children[1]);}
-  const ct=document.getElementById('ct-'+idx); if(ct) ct.style.cssText='color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.8)';
-  const cs=document.getElementById('cs-'+idx); if(cs) cs.style.cssText='color:rgba(255,255,255,0.85)';
+function updateCoverImg(idx,url){
+  const card=document.getElementById('cc-'+idx); if(!card) return;
+  card.style.backgroundImage=`url('${url}')`;
+  card.style.backgroundSize='cover';
+  card.style.backgroundPosition='center';
+  if(!card.querySelector('.cov-ov')){
+    const ov=document.createElement('div');
+    ov.className='cov-ov';
+    ov.style.cssText='position:absolute;inset:0;background:rgba(0,0,0,0.42);border-radius:8px;z-index:1';
+    const firstChild=card.querySelector('[style*="z-index:2"]');
+    if(firstChild) card.insertBefore(ov,firstChild);
+    else card.appendChild(ov);
+  }
+  const ct=document.getElementById('ct-'+idx);
+  const cs=document.getElementById('cs-'+idx);
+  if(ct) ct.style.cssText='color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.85)';
+  if(cs) cs.style.cssText='color:rgba(255,255,255,0.85)';
 }
 
+// ── PDF EXPORT ────────────────────────────────────────────
 async function exportPDF(){
   if(!genPages.length){showToast('Genera prima lo storybook!'); return;}
-
-  const exportBtn=document.querySelector('[onclick="exportPDF()"]');
-  if(exportBtn){exportBtn.disabled=true; exportBtn.textContent='⏳ PDF in corso...';}
-
+  const btn=document.getElementById('pdf-btn');
+  btn.disabled=true; btn.textContent='⏳ In corso...';
   try{
     const {jsPDF}=window.jspdf;
     const fmt=document.getElementById('format').value;
-    const isA5=fmt==='A5', isSquare=fmt==='square';
-    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:isA5?'a5':isSquare?[200,200]:'a4'});
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:fmt==='A5'?'a5':fmt==='square'?[200,200]:'a4'});
     const pdfW=doc.internal.pageSize.getWidth();
     const pdfH=doc.internal.pageSize.getHeight();
-
-    // A4 pixel dimensions at 150dpi for good quality
     const ratio=pdfH/pdfW;
-    const renderW=794; // px — standard A4 at 96dpi
+    const renderW=820;
     const renderH=Math.round(renderW*ratio);
 
     const cards=document.querySelectorAll('#pgrid .pc');
-    if(!cards.length){showToast('Nessuna pagina trovata!'); return;}
-
     for(let i=0;i<cards.length;i++){
       if(i>0) doc.addPage();
       const card=cards[i];
-
-      // Save original styles
-      const orig={
-        width:card.style.width, height:card.style.height,
-        position:card.style.position, left:card.style.left,
-        top:card.style.top, zIndex:card.style.zIndex,
-        aspectRatio:card.style.aspectRatio
-      };
-
-      // Temporarily set exact A4 size for screenshot
-      card.style.width=renderW+'px';
-      card.style.height=renderH+'px';
-      card.style.aspectRatio='unset';
-      card.style.position='fixed';
-      card.style.left='-9999px';
-      card.style.top='0px';
-      card.style.zIndex='-1';
-
-      // Wait for reflow
+      // Save styles
+      const saved={width:card.style.width,height:card.style.height,position:card.style.position,
+        left:card.style.left,top:card.style.top,zIndex:card.style.zIndex,aspectRatio:card.style.aspectRatio};
+      // Set exact A4 size off-screen
+      Object.assign(card.style,{width:renderW+'px',height:renderH+'px',aspectRatio:'unset',
+        position:'fixed',left:'-9999px',top:'0',zIndex:'-1'});
       await new Promise(r=>setTimeout(r,80));
-
-      const cardBg = window.getComputedStyle(card).backgroundColor || '#ffffff';
-
+      const cardBg=window.getComputedStyle(card).backgroundColor||'#ffffff';
       const canvas=await html2canvas(card,{
-        scale:2,
-        useCORS:true,
-        allowTaint:true,
-        backgroundColor: cardBg,
-        logging:false,
-        width:renderW,
-        height:renderH,
-        imageTimeout:30000
+        scale:2, useCORS:true, allowTaint:true,
+        backgroundColor:cardBg, logging:false,
+        width:renderW, height:renderH, imageTimeout:30000
       });
-
-      // Restore original styles
-      Object.assign(card.style, orig);
-
-      const imgData=canvas.toDataURL('image/jpeg',0.95);
-      doc.addImage(imgData,'JPEG',0,0,pdfW,pdfH);
+      // Restore styles
+      Object.assign(card.style,saved);
+      doc.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',0,0,pdfW,pdfH);
     }
-
-    const title=document.getElementById('book-title').value||'storybook';
-    doc.save(title.replace(/\s+/g,'_')+'.pdf');
+    const title=(document.getElementById('book-title').value||'storybook').replace(/\s+/g,'_');
+    doc.save(title+'.pdf');
     showToast('✅ PDF scaricato!');
   }catch(e){
-    showToast('Errore PDF: '+e.message);
-    console.error(e);
+    showToast('Errore PDF: '+e.message); console.error(e);
   }finally{
-    if(exportBtn){exportBtn.disabled=false; exportBtn.textContent='⬇ PDF';}
+    btn.disabled=false; btn.textContent='⬇ PDF';
   }
 }
 
-function getLayoutForPDF(pageIdx){
-  const page=genPages[pageIdx];
-  if(page&&page.imgLayout) return page.imgLayout;
-  if(selLayoutMode!=='auto') return selLayoutMode;
-  return LAYOUTS[pageIdx%LAYOUTS.length];
+// ── UTILITIES ─────────────────────────────────────────────
+function showProg(v){
+  document.getElementById('prog').classList.toggle('show',v);
+  if(v){document.getElementById('plog').innerHTML='';document.getElementById('pbar').style.width='0%';}
 }
-async function blobToB64(blobUrl){
-  const r=await fetch(blobUrl);
-  const b=await r.blob();
-  return new Promise((res,rej)=>{
-    const fr=new FileReader();
-    fr.onload=()=>res(fr.result);
-    fr.onerror=rej;
-    fr.readAsDataURL(b);
-  });
+function showToast(msg,ok=false){
+  const t=document.getElementById('toast');
+  t.style.background=ok?'#2d7a4a':'#c0392b';
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),4000);
 }
-async function toB64(url){
-  if(url.startsWith('data:')) return url;
-  if(url.startsWith('blob:')) return blobToB64(url);
-  // External URL — fetch via CORS
-  try{
-    const r=await fetch(url);
-    const b=await r.blob();
-    return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=rej;fr.readAsDataURL(b);});
-  }catch{
-    // Try with canvas as fallback
-    return new Promise((res,rej)=>{
-      const img=new Image(); img.crossOrigin='anonymous';
-      img.onload=()=>{
-        const c=document.createElement('canvas');
-        c.width=img.width; c.height=img.height;
-        c.getContext('2d').drawImage(img,0,0);
-        res(c.toDataURL('image/jpeg',0.9));
-      };
-      img.onerror=rej;
-      img.src=url;
-    });
-  }
+function clearAll(){
+  genPages=[]; imgCounter=0;
+  document.getElementById('pgrid').innerHTML=`<div class="empty-state"><div class="icon">📖</div><p>Storybook resettato!</p></div>`;
+  document.getElementById('prev-info').textContent='';
+  showProg(false);
 }
-
-function showProg(v){document.getElementById('prog').classList.toggle('show',v);if(v){document.getElementById('plog').innerHTML='';document.getElementById('pbar').style.width='0%';}}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function clearAll(){genPages=[];document.getElementById('pgrid').innerHTML=`<div class="empty-state"><div class="icon">📖</div><p>Storybook resettato!</p></div>`;document.getElementById('prev-info').textContent='';showProg(false);}
 </script>
 </body>
 </html>
