@@ -976,71 +976,170 @@ function updateCover(idx,url){
 
 async function exportPDF(){
   if(!genPages.length){showToast('Genera prima lo storybook!'); return;}
+  showToast('Generazione PDF in corso...');
+
   const {jsPDF}=window.jspdf;
   const fmt=document.getElementById('format').value;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:fmt==='A5'?'a5':fmt==='square'?[200,200]:'a4'});
-  const w=doc.internal.pageSize.getWidth(),h=doc.internal.pageSize.getHeight();
+  const w=doc.internal.pageSize.getWidth(), h=doc.internal.pageSize.getHeight();
 
-  // Parse selTextColor to RGB
-  const hexToRgb=hex=>{const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return[r,g,b];};
+  const hexToRgb=hex=>{
+    const h=hex.replace('#','');
+    return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];
+  };
+
   const tcRgb=hexToRgb(selTextColor||'#1a1a1a');
+  const dark=['noir','cyberpunk','spazio'].includes(selTheme);
 
-  // Page background color
-  const bgMap={white:[255,255,255],cream:[253,248,240],light:[240,244,255]};
-  const pgBg=bgMap[selBgMode]||[255,255,255];
+  // Background colors map
+  const bgMap={
+    white:[255,255,255],
+    cream:[253,248,240],
+    light:[240,244,255],
+    colored: hexToRgb(selColor).map(c=>Math.min(255,Math.round(c*0.15+240)))
+  };
+  const pageBgRgb=dark?[10,10,26]:(bgMap[selBgMode]||[255,255,255]);
+
+  // Font size map
+  const fsMap={small:8,medium:10,large:12};
+  const bodyFs=fsMap[selFontSize]||10;
 
   for(let i=0;i<genPages.length;i++){
     if(i>0) doc.addPage();
     const page=genPages[i];
     const isCover=page.type==='cover';
-    const dark=['noir','cyberpunk','spazio'].includes(selTheme);
+    const hasImg=!!page.imgUrl;
+    const lay=page.imgLayout||getLayoutForPDF(i);
 
-    // Background
-    if(isCover){
-      doc.setFillColor(...(dark?[10,10,26]:[255,255,255]));
-    } else {
-      doc.setFillColor(...(dark?[10,10,26]:pgBg));
-    }
-    doc.rect(0,0,w,h,'F');
-
-    // Image
-    if(page.imgUrl){
+    // ── BACKGROUND ──
+    if(isCover && hasImg){
+      // Cover with image: draw image full page first
       try{
         let d=page.imgUrl; if(!d.startsWith('data:')) d=await toB64(d);
-        const lay=page.imgLayout||'top';
-        if(isCover||lay==='full') doc.addImage(d,'JPEG',0,0,w,h);
-        else if(lay==='top') doc.addImage(d,'JPEG',0,0,w,h*.52);
-        else if(lay==='bottom') doc.addImage(d,'JPEG',0,h*.48,w,h*.52);
-      }catch{}
+        doc.addImage(d,'JPEG',0,0,w,h);
+        // Dark overlay for text readability
+        doc.setFillColor(0,0,0);
+        doc.setGState && doc.setGState(new doc.GState({opacity:0.45}));
+        doc.rect(0,0,w,h,'F');
+        doc.setGState && doc.setGState(new doc.GState({opacity:1}));
+      }catch(e){
+        doc.setFillColor(30,30,80); doc.rect(0,0,w,h,'F');
+      }
+    } else {
+      // All other pages: set background color
+      doc.setFillColor(...pageBgRgb);
+      doc.rect(0,0,w,h,'F');
     }
 
-    // Text
-    if(isCover){
-      doc.setTextColor(...(dark?[255,255,255]:tcRgb));
-      doc.setFontSize(22);doc.setFont('helvetica','bold');
-      doc.text(page.title||'',w/2,h/2-8,{align:'center',maxWidth:w-20});
-      doc.setFontSize(11);doc.setFont('helvetica','normal');
-      doc.text(page.subtitle||'',w/2,h/2+8,{align:'center',maxWidth:w-20});
-    } else {
-      doc.setTextColor(...tcRgb);
-      const lay=page.imgLayout||'top';
-      const ty=lay==='top'?h*.56:14;
-      if(page.title){
-        doc.setFontSize(8);doc.setFont('helvetica','bold');
-        doc.setTextColor(...tcRgb.map(c=>Math.min(255,c+80)));
-        doc.text((page.title||'').toUpperCase(),14,ty,{maxWidth:w-28});
-      }
-      if(page.text){
-        doc.setFontSize(selFontSize==='small'?8:selFontSize==='large'?11:9);
-        doc.setFont('helvetica','normal');
-        doc.setTextColor(...tcRgb);
-        doc.text(page.text||'',14,ty+(page.title?8:0),{maxWidth:w-28});
+    // ── IMAGE (non-cover pages) ──
+    if(!isCover && hasImg){
+      try{
+        let d=page.imgUrl; if(!d.startsWith('data:')) d=await toB64(d);
+        if(lay==='full'){
+          doc.addImage(d,'JPEG',0,0,w,h);
+          // re-draw background under text area
+          doc.setFillColor(...pageBgRgb);
+          // no text overlay needed for full — text is skipped for full pages
+        } else if(lay==='top'){
+          doc.addImage(d,'JPEG',0,0,w,h*0.52);
+        } else if(lay==='bottom'){
+          doc.addImage(d,'JPEG',0,h*0.48,w,h*0.52);
+        }
+      }catch(e){}
+    }
+
+    // ── FRAME ──
+    if(!isCover && lay!=='full'){
+      const txtY=lay==='top'?h*0.54:(lay==='bottom'?4:4);
+      const txtH=lay==='top'?(h*0.44):(lay==='bottom'?(h*0.44):h-8);
+      const mx=10, my=txtY;
+
+      if(selFrameMode==='box'){
+        const fc=dark?[255,255,255,0.3]:hexToRgb('#cccccc');
+        doc.setDrawColor(...(dark?[180,180,180]:fc));
+        doc.setLineWidth(0.3);
+        doc.rect(mx,my,w-mx*2,txtH-2,'S');
+      } else if(selFrameMode==='rounded'){
+        doc.setDrawColor(...(dark?[180,180,180]:[180,180,180]));
+        doc.setLineWidth(0.3);
+        doc.roundedRect(mx,my,w-mx*2,txtH-2,3,3,'S');
+      } else if(selFrameMode==='shadow'){
+        doc.setFillColor(...(dark?[40,40,60]:[255,255,255]));
+        doc.setDrawColor(200,200,200);
+        doc.setLineWidth(0.2);
+        doc.roundedRect(mx+0.5,my+0.5,w-mx*2,txtH-2,2,2,'FD');
+      } else if(selFrameMode==='colored'){
+        const cc=hexToRgb(selColor);
+        doc.setFillColor(cc[0],cc[1],cc[2]);
+        doc.setGState && doc.setGState(new doc.GState({opacity:0.12}));
+        doc.roundedRect(mx,my,w-mx*2,txtH-2,3,3,'F');
+        doc.setGState && doc.setGState(new doc.GState({opacity:1}));
+        doc.setDrawColor(...cc);
+        doc.setLineWidth(0.4);
+        doc.roundedRect(mx,my,w-mx*2,txtH-2,3,3,'S');
+      } else if(selFrameMode==='vintage'){
+        doc.setDrawColor(...(dark?[200,180,120]:[120,100,60]));
+        doc.setLineWidth(0.3);
+        doc.rect(mx,my,w-mx*2,txtH-2,'S');
+        doc.setLineWidth(0.15);
+        doc.rect(mx+1.5,my+1.5,w-mx*2-3,txtH-5,'S');
       }
     }
-    // Page number
-    doc.setFontSize(7);doc.setTextColor(150,150,150);doc.text(`${i+1}`,w-7,h-5);
+
+    // ── TEXT ──
+    if(isCover){
+      // Cover text centered
+      const textColor=hasImg?[255,255,255]:tcRgb;
+      doc.setTextColor(...textColor);
+      doc.setFontSize(Math.min(22,w/6));
+      doc.setFont('helvetica','bold');
+      doc.text(page.title||'',w/2,h*0.62,{align:'center',maxWidth:w-16});
+      if(page.subtitle){
+        doc.setFontSize(10);
+        doc.setFont('helvetica','normal');
+        doc.setTextColor(...(hasImg?[220,220,220]:tcRgb));
+        doc.text(page.subtitle,w/2,h*0.62+10,{align:'center',maxWidth:w-20});
+      }
+    } else if(lay!=='full'){
+      // Text area Y position based on layout
+      const txtStartY= lay==='top' ? h*0.55 : (lay==='bottom' ? 6 : 6);
+      const maxW=w-26;
+      let curY=txtStartY;
+
+      if(page.title){
+        doc.setFontSize(7.5);
+        doc.setFont('helvetica','bold');
+        const chapterColor=dark?[180,180,180]:tcRgb.map(c=>Math.min(255,c+90));
+        doc.setTextColor(...chapterColor);
+        doc.text((page.title||'').toUpperCase(),13,curY,{maxWidth:maxW});
+        curY+=6;
+      }
+      if(page.text){
+        doc.setFontSize(bodyFs);
+        doc.setFont('helvetica','normal');
+        doc.setTextColor(...(dark?[210,210,220]:tcRgb));
+        // Split text to fit
+        const lines=doc.splitTextToSize(page.text||'',maxW);
+        doc.text(lines,13,curY);
+      }
+    }
+
+    // ── PAGE NUMBER ──
+    doc.setFontSize(6.5);
+    doc.setTextColor(160,160,160);
+    doc.text(`${i+1}`,w-6,h-4);
   }
-  doc.save((document.getElementById('book-title').value||'storybook').replace(/\s+/g,'_')+'.pdf');
+
+  const title=document.getElementById('book-title').value||'storybook';
+  doc.save(title.replace(/\s+/g,'_')+'.pdf');
+}
+
+// Returns layout for PDF based on stored imgLayout or auto
+function getLayoutForPDF(pageIdx){
+  const page=genPages[pageIdx];
+  if(page&&page.imgLayout) return page.imgLayout;
+  if(selLayoutMode!=='auto') return selLayoutMode;
+  return LAYOUTS[pageIdx%LAYOUTS.length];
 }
 async function blobToB64(blobUrl){
   const r=await fetch(blobUrl);
