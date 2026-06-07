@@ -789,10 +789,6 @@ RISPONDI SOLO con JSON array, nient'altro:
       log(label+'...');
       try{
         let url=await genImg(page.imgPrompt, keys);
-        // Convert blob:// to base64 immediately so PDF export works
-        if(url && url.startsWith('blob:')){
-          try{ url=await blobToB64(url); }catch(e){ /* keep blob url for display */ }
-        }
         genPages[i].imgUrl=url;
         if(page.type==='cover') updateCover(i,url);
         else updatePageImg(i,url);
@@ -824,25 +820,39 @@ async function callText(prompt){
   if(tProv==='claude') return callClaude(document.getElementById('claude-key').value.trim(),prompt);
 }
 
+async function imgElToB64(imgEl){
+  return new Promise((res,rej)=>{
+    const convert=()=>{
+      try{
+        const c=document.createElement('canvas');
+        c.width=imgEl.naturalWidth||1024; c.height=imgEl.naturalHeight||1024;
+        c.getContext('2d').drawImage(imgEl,0,0);
+        res(c.toDataURL('image/jpeg',0.92));
+      }catch(e){rej(e);}
+    };
+    if(imgEl.complete&&imgEl.naturalWidth>0) convert();
+    else{imgEl.onload=convert; imgEl.onerror=rej;}
+  });
+}
+
 async function genImg(prompt,keys){
   if(mode==='free'){
     const model=document.getElementById('puter-img').value;
-    try{
-      const resp=await puter.ai.txt2img(prompt,{model});
-      if(resp instanceof HTMLImageElement) return resp.src;
-      if(resp instanceof Blob) return URL.createObjectURL(resp);
+    const tryModel=async(m)=>{
+      const resp=await puter.ai.txt2img(prompt,{model:m});
+      if(resp instanceof HTMLImageElement){
+        try{return await imgElToB64(resp);}catch{return resp.src;}
+      }
+      if(resp instanceof Blob){
+        const burl=URL.createObjectURL(resp);
+        try{return await blobToB64(burl);}catch{return burl;}
+      }
       if(typeof resp==='string') return resp;
       return resp?.src||resp?.url||null;
-    }catch(e){
-      // Se DALL-E fallisce, prova con flux-schnell come fallback
-      if(model!=='flux-schnell'){
-        console.warn('Modello fallito, fallback su flux-schnell');
-        const resp2=await puter.ai.txt2img(prompt,{model:'flux-schnell'});
-        if(resp2 instanceof HTMLImageElement) return resp2.src;
-        if(resp2 instanceof Blob) return URL.createObjectURL(resp2);
-        if(typeof resp2==='string') return resp2;
-        return resp2?.src||resp2?.url||null;
-      }
+    };
+    try{ return await tryModel(model); }
+    catch(e){
+      if(model!=='flux-schnell') return await tryModel('flux-schnell');
       throw e;
     }
   }
