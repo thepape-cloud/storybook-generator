@@ -949,16 +949,42 @@ async function blobToB64(url){
   return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=rej;fr.readAsDataURL(b);});
 }
 
-// Convert any HTTP image URL to base64 data URI (prevents expiry issues with Together/DALL-E)
+// Convert any image URL to base64 — uses canvas to avoid CORS issues
 async function urlToBase64(url){
-  const r=await fetch(url,{mode:'cors'});
-  if(!r.ok) throw new Error('fetch '+r.status);
-  const blob=await r.blob();
-  return new Promise(function(res,rej){
-    const fr=new FileReader();
-    fr.onload=function(){res(fr.result);};
-    fr.onerror=rej;
-    fr.readAsDataURL(blob);
+  return new Promise((res,rej)=>{
+    const img=new Image();
+    img.crossOrigin='anonymous';
+    img.onload=()=>{
+      try{
+        const c=document.createElement('canvas');
+        c.width=img.width; c.height=img.height;
+        c.getContext('2d').drawImage(img,0,0);
+        res(c.toDataURL('image/jpeg',0.92));
+      }catch(e){
+        // Canvas tainted — try without crossOrigin
+        const img2=new Image();
+        img2.onload=()=>{
+          try{
+            const c2=document.createElement('canvas');
+            c2.width=img2.width; c2.height=img2.height;
+            c2.getContext('2d').drawImage(img2,0,0);
+            res(c2.toDataURL('image/jpeg',0.92));
+          }catch(e2){ rej(e2); }
+        };
+        img2.onerror=()=>rej(new Error('Image load failed'));
+        img2.src=url+'?t='+Date.now();
+      }
+    };
+    img.onerror=()=>{
+      // Try fetch as fallback
+      fetch(url).then(r=>r.blob()).then(b=>{
+        const fr=new FileReader();
+        fr.onload=()=>res(fr.result);
+        fr.onerror=rej;
+        fr.readAsDataURL(b);
+      }).catch(rej);
+    };
+    img.src=url;
   });
 }
 
@@ -1249,8 +1275,8 @@ async function exportPDF(){
       // Inner content bounds
       const IX=PAD+BORD+Math.round(8*SC);
       const IY=PAD+BORD+Math.round(8*SC);
-      const IW=CW-IX*2+PAD*2-BORD*2-Math.round(16*SC);
-      const IH=CH-IY*2+PAD*2-BORD*2-Math.round(16*SC);
+      const IW=CW-IX*2;
+      const IH=CH-IY*2;
 
       // ── COVER ──
       if(page.type==='cover'){
