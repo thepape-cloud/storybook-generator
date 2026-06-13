@@ -393,10 +393,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
       <label>Pagine: <span id="pval" style="color:var(--gold)">8</span></label>
       <input type="range" id="prange" min="4" max="24" value="8" step="2">
     </div>
-    <div class="field" style="margin-top:9px">
-      <label>Immagini: <span id="ival" style="color:var(--gold)">4</span></label>
-      <input type="range" id="irange" min="1" max="12" value="4">
-    </div>
   </div>
 
   <!-- IMPAGINAZIONE -->
@@ -616,19 +612,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('font-style').addEventListener('change',e=>selFontStyle=e.target.value);
 
   // Range sliders
-  const pr=document.getElementById('prange'), ir=document.getElementById('irange');
-  // Sync irange max with initial prange value
-  ir.max=pr.value;
-  if(parseInt(ir.value)>parseInt(pr.value)){ir.value=pr.value;document.getElementById('ival').textContent=pr.value;}
+  const pr=document.getElementById('prange');
   pr.addEventListener('input',()=>{
     document.getElementById('pval').textContent=pr.value;
-    ir.max=pr.value;
-    if(parseInt(ir.value)>parseInt(pr.value)){
-      ir.value=pr.value;
-      document.getElementById('ival').textContent=pr.value;
-    }
   });
-  ir.addEventListener('input',()=>document.getElementById('ival').textContent=ir.value);
 
   // Init color previews
   updateColorPreviews();
@@ -763,13 +750,14 @@ async function generate(){
   showProg(true);
 
   const totalP=parseInt(document.getElementById('prange').value);
-  const totalI=parseInt(document.getElementById('irange').value);
+  // Automatic: cover + one image per text page + closing image
+  // We let the AI decide which pages get images (all of them basically)
   const lang=document.getElementById('language').value;
   const themeStyle=selTheme==='custom'
     ?(document.getElementById('custom-theme').value.trim()||'illustrative art')
     :THEMES[selTheme];
 
-  let step=0; const tot=2+totalI;
+  let step=0; const tot=totalP+2;
   const log=(msg,type='')=>{
     step++;
     document.getElementById('pbar').style.width=Math.min(Math.round(step/tot*100),97)+'%';
@@ -782,28 +770,28 @@ async function generate(){
 
   try{
     // ── 1. Generate text + image plan ──
-    log('Generazione testo e piano illustrazioni...');
+    log('Generazione testo e illustrazioni...');
     const prompt=`Sei un autore e art director di libri illustrati per bambini.
 Trama: "${plot}"
 Tema visivo: ${themeStyle}
 Colore dominante: ${selColor}
 Pagine totali: ${totalP} (inclusa copertina)
-Pagine con illustrazione: ${totalI} (la copertina ha sempre un'immagine, non conta)
 Lingua: ${lang}
 
-Regole:
+Regole IMPORTANTI:
 - Pagina 1 = copertina (type:"cover", ha sempre imgPrompt)
-- Distribuisci le ${totalI} illustrazioni in modo narrativo, sparse nel libro, non consecutive
-- Per ogni pagina con immagine includi imgPrompt in inglese, dettagliato, nello stile: "${themeStyle}", colore dominante ${selColor}
-- Testo massimo 70 parole per pagina, adatto ai bambini
-- Copertina: imgPrompt deve descrivere una bella copertina professionale
+- OGNI pagina di testo deve avere la sua illustrazione (imgPrompt) — coerente col testo di quella pagina
+- L'ultima pagina è una pagina di chiusura con immagine (type:"image")
+- Per ogni imgPrompt: descrizione dettagliata in inglese, stile "${themeStyle}", colore dominante ${selColor}
+- Testo massimo 60 parole per pagina, semplice e adatto ai bambini
+- I prompt immagine devono descrivere ESATTAMENTE la scena del testo di quella pagina
 
 RISPONDI SOLO con JSON valido, nient'altro:
 [
-  {"type":"cover","title":"${title}","subtitle":"sottotitolo breve","imgPrompt":"book cover illustration..."},
-  {"type":"text","title":"Titolo capitolo","text":"Testo della pagina..."},
-  {"type":"image","title":"Titolo capitolo","text":"Testo della pagina...","imgPrompt":"scene illustration..."},
-  ...
+  {"type":"cover","title":"${title}","subtitle":"sottotitolo breve","imgPrompt":"professional children book cover illustration, ${themeStyle}, ${selColor} dominant color..."},
+  {"type":"image","title":"Titolo capitolo","text":"Testo pagina...","imgPrompt":"scene illustration exactly matching this text, ${themeStyle}..."},
+  ...ultima pagina...
+  {"type":"image","title":"Fine","text":"Testo conclusivo...","imgPrompt":"closing scene illustration, ${themeStyle}..."}
 ]`;
 
     const raw=await callText(prompt);
@@ -832,9 +820,15 @@ RISPONDI SOLO con JSON valido, nient'altro:
       log(lbl+'...');
       try{
         let url=await callImage(page.imgPrompt);
-        // Convert HTTP URLs to base64 immediately — they expire quickly (Together, DALL-E)
-        if(url&&url.startsWith('http')){
-          try{ url=await urlToBase64(url); }catch(e){ /* keep original if fetch fails */ }
+        // ALWAYS convert to base64 — HTTP URLs taint canvas and expire
+        if(url && !url.startsWith('data:')){
+          try{
+            log(lbl+' conversione b64...');
+            url=await urlToBase64(url);
+            log(lbl+' b64 ok','ok');
+          }catch(e){
+            log(lbl+' b64 fallita (url originale mantenuto): '+e.message,'err');
+          }
         }
         genPages[i].imgUrl=url;
         if(page.type==='cover') updateCoverImg(i,url);
@@ -951,41 +945,35 @@ async function blobToB64(url){
 
 // Convert any image URL to base64 — uses canvas to avoid CORS issues
 async function urlToBase64(url){
-  return new Promise((res,rej)=>{
-    const img=new Image();
-    img.crossOrigin='anonymous';
-    img.onload=()=>{
-      try{
-        const c=document.createElement('canvas');
-        c.width=img.width; c.height=img.height;
-        c.getContext('2d').drawImage(img,0,0);
-        res(c.toDataURL('image/jpeg',0.92));
-      }catch(e){
-        // Canvas tainted — try without crossOrigin
-        const img2=new Image();
-        img2.onload=()=>{
-          try{
-            const c2=document.createElement('canvas');
-            c2.width=img2.width; c2.height=img2.height;
-            c2.getContext('2d').drawImage(img2,0,0);
-            res(c2.toDataURL('image/jpeg',0.92));
-          }catch(e2){ rej(e2); }
-        };
-        img2.onerror=()=>rej(new Error('Image load failed'));
-        img2.src=url+'?t='+Date.now();
-      }
-    };
-    img.onerror=()=>{
-      // Try fetch as fallback
-      fetch(url).then(r=>r.blob()).then(b=>{
-        const fr=new FileReader();
-        fr.onload=()=>res(fr.result);
-        fr.onerror=rej;
-        fr.readAsDataURL(b);
-      }).catch(rej);
-    };
-    img.src=url;
-  });
+  // Try fetch with no-cors mode to get blob
+  try{
+    const r=await fetch(url);
+    if(!r.ok) throw new Error('fetch failed');
+    const blob=await r.blob();
+    return new Promise((res,rej)=>{
+      const fr=new FileReader();
+      fr.onload=()=>res(fr.result);
+      fr.onerror=rej;
+      fr.readAsDataURL(blob);
+    });
+  }catch(e){
+    // Fallback: canvas with crossOrigin
+    return new Promise((res,rej)=>{
+      const img=new Image();
+      img.crossOrigin='anonymous';
+      img.onload=()=>{
+        try{
+          const c=document.createElement('canvas');
+          c.width=img.naturalWidth||1024;
+          c.height=img.naturalHeight||1024;
+          c.getContext('2d').drawImage(img,0,0);
+          res(c.toDataURL('image/jpeg',0.92));
+        }catch(err){ rej(err); }
+      };
+      img.onerror=rej;
+      img.src=url;
+    });
+  }
 }
 
 async function callTogether(k,p){
@@ -1215,19 +1203,19 @@ async function exportPDF(){
     function loadImg(url){
       return new Promise(function(res){
         if(!url){res(null);return;}
+        // Only load data URIs — HTTP URLs taint the canvas and block PDF export
+        if(!url.startsWith('data:')){
+          // Try with crossOrigin — if it fails, return null (better than tainted canvas)
+          const img=new Image();
+          img.crossOrigin='anonymous';
+          img.onload=function(){res(img);};
+          img.onerror=function(){res(null);}; // skip rather than taint
+          img.src=url;
+          return;
+        }
         const img=new Image();
-        // data URIs don't need CORS; http URLs do (may taint canvas)
-        if(!url.startsWith('data:')){img.crossOrigin='anonymous';}
         img.onload=function(){res(img);};
-        img.onerror=function(){
-          // Retry without crossOrigin (some CDNs block CORS headers)
-          if(img.crossOrigin){
-            const img2=new Image();
-            img2.onload=function(){res(img2);};
-            img2.onerror=function(){res(null);};
-            img2.src=url;
-          } else {res(null);}
-        };
+        img.onerror=function(){res(null);};
         img.src=url;
       });
     }
