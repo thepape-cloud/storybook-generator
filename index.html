@@ -977,7 +977,6 @@ async function urlToBase64(url){
 }
 
 async function callTogether(k,p){
-  // Try models in order of availability — free tier changes over time
   const models=[
     'black-forest-labs/FLUX.1-schnell',
     'stabilityai/stable-diffusion-xl-base-1.0',
@@ -990,21 +989,39 @@ async function callTogether(k,p){
         body:JSON.stringify({model:models[mi],prompt:p.slice(0,1000),width:1024,height:1024,steps:4,n:1})});
       if(r.ok){
         const j=await r.json();
-        const url=j.data?.[0]?.url||j.data?.[0]?.b64_json;
-        if(url) return url.startsWith('http')?url:'data:image/png;base64,'+url;
+        // b64_json — already base64, use directly
+        if(j.data?.[0]?.b64_json) return 'data:image/png;base64,'+j.data[0].b64_json;
+        // url — download immediately as blob before it expires/CORS blocks
+        const imgUrl=j.data?.[0]?.url;
+        if(imgUrl){
+          try{
+            const ir=await fetch(imgUrl);
+            if(ir.ok){
+              const blob=await ir.blob();
+              return await new Promise((res,rej)=>{
+                const fr=new FileReader();
+                fr.onload=()=>res(fr.result);
+                fr.onerror=rej;
+                fr.readAsDataURL(blob);
+              });
+            }
+          }catch(fetchErr){
+            // fetch failed (CORS) — return URL as fallback, PDF will skip image
+            console.warn('Together image fetch failed:',fetchErr);
+            return imgUrl;
+          }
+        }
       }
-      const err=await r.json().catch(()=>({}));
-      // If not a "model unavailable" error, throw immediately
-      const msg=(err?.error?.message||'').toLowerCase();
+      const errBody=await r.json().catch(()=>({}));
+      const msg=(errBody?.error?.message||'').toLowerCase();
       if(!msg.includes('dedicated')&&!msg.includes('serverless')&&!msg.includes('unavailable')&&r.status!==422){
-        throw new Error(err?.error?.message||'Together '+r.status);
+        throw new Error(errBody?.error?.message||'Together '+r.status);
       }
-      // Otherwise try next model
     }catch(e){
       if(mi===models.length-1) throw e;
     }
   }
-  throw new Error('Nessun modello Together AI disponibile — controlla la chiave o usa Stability AI');
+  throw new Error('Nessun modello Together AI disponibile');
 }
 async function callStability(k,p){
   const f=new FormData(); f.append('prompt',p.slice(0,2000)); f.append('output_format','jpeg');
@@ -1018,7 +1035,22 @@ async function callDalle(k,p){
     headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
     body:JSON.stringify({model:'dall-e-3',prompt:p.slice(0,4000),n:1,size:'1024x1024',quality:'standard'})});
   if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'DALL-E '+r.status);}
-  return (await r.json()).data?.[0]?.url||null;
+  const imgUrl=(await r.json()).data?.[0]?.url||null;
+  if(!imgUrl) return null;
+  // Immediately fetch as blob to avoid CORS issues in PDF export
+  try{
+    const ir=await fetch(imgUrl);
+    if(ir.ok){
+      const blob=await ir.blob();
+      return await new Promise((res,rej)=>{
+        const fr=new FileReader();
+        fr.onload=()=>res(fr.result);
+        fr.onerror=rej;
+        fr.readAsDataURL(blob);
+      });
+    }
+  }catch(e){ console.warn('DALL-E image fetch failed:',e); }
+  return imgUrl; // fallback
 }
 
 // ── RENDER ────────────────────────────────────────────────
