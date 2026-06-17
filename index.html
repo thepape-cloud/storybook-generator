@@ -1181,6 +1181,19 @@ async function exportPDF(){
   const btn=document.getElementById('pdf-btn');
   btn.disabled=true; btn.textContent='⏳ In corso...';
   try{
+    // Ensure fonts are loaded before drawing to canvas
+    if(document.fonts && document.fonts.ready){
+      await document.fonts.ready;
+      try{
+        await Promise.all([
+          document.fonts.load("16px 'Playfair Display'"),
+          document.fonts.load("bold 16px 'Playfair Display'"),
+          document.fonts.load("16px 'DM Sans'"),
+          document.fonts.load("bold 16px 'DM Sans'")
+        ]);
+      }catch(e){}
+    }
+
     const {jsPDF}=window.jspdf;
     const fmt=document.getElementById('format').value;
     const doc=new jsPDF({orientation:'portrait',unit:'mm',
