@@ -213,6 +213,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
         </select>
       </div>
     </div>
+    <div class="key-card" style="margin-top:9px;flex-direction:row;align-items:center;justify-content:space-between;gap:8px">
+      <div style="font-size:12px;line-height:1.5">
+        <strong>Account Puter</strong><br>
+        <span id="puter-acc-status" style="color:var(--muted);font-size:11px">non verificato</span>
+      </div>
+      <button class="btn btn-o" style="font-size:11px;padding:7px 10px;flex-shrink:0" onclick="switchPuterAccount()">🔁 Cambia account</button>
+    </div>
+    <div style="margin-top:6px;font-size:11px;color:var(--muted);line-height:1.5">
+      Se finisci i crediti gratuiti, usa "Cambia account" per accedere con un secondo account Puter.
+    </div>
   </div>
 
   <!-- LOCAL MODE -->
@@ -600,6 +610,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       clearInterval(chk);
       st.textContent='✅ Puter pronto'; st.style.color='var(--green)';
       setTimeout(()=>st.style.display='none',3000);
+      updatePuterAccountStatus();
     } else if(++checks>30){
       clearInterval(chk);
       st.textContent='⚠️ Puter non disponibile'; st.style.color='var(--amber)';
@@ -707,6 +718,7 @@ function setMode(m){
   document.getElementById('sec-local').style.display=m==='local'?'block':'none';
   document.getElementById('sec-pro-txt').style.display=m==='pro'?'block':'none';
   document.getElementById('sec-pro-img').style.display=m==='pro'?'block':'none';
+  if(m==='free') updatePuterAccountStatus();
   if(m==='local') checkLocalStatus();
 }
 
@@ -1028,6 +1040,41 @@ async function callPuterImg(prompt){
   catch(e){
     if(model!=='flux-schnell') return await tryM('flux-schnell');
     throw e;
+  }
+}
+
+// ── PUTER ACCOUNT (cambio account quando finiscono i crediti free) ──
+async function updatePuterAccountStatus(){
+  const el=document.getElementById('puter-acc-status');
+  if(!el||typeof puter==='undefined'||!puter.auth) return;
+  try{
+    const signedIn=await puter.auth.isSignedIn();
+    if(signedIn){
+      const user=await puter.auth.getUser();
+      el.textContent='Connesso come '+(user?.username||'utente');
+    }else{
+      el.textContent='Non connesso (verrà richiesto al primo utilizzo)';
+    }
+  }catch(e){
+    el.textContent='Stato non verificabile';
+  }
+}
+
+async function switchPuterAccount(){
+  if(typeof puter==='undefined'||!puter.auth){
+    showToast('Puter.js non ancora pronto — aspetta'); return;
+  }
+  const el=document.getElementById('puter-acc-status');
+  try{
+    // Esce dall'account corrente, poi apre subito il popup per accedere con un altro
+    await puter.auth.signOut();
+    if(el) el.textContent='Disconnesso — apertura popup login...';
+    await puter.auth.signIn();
+    await updatePuterAccountStatus();
+    showToast('Account Puter cambiato ✓',true);
+  }catch(e){
+    if(el) el.textContent='Cambio account annullato o fallito';
+    showToast('Cambio account non riuscito: '+(e?.message||'riprova'));
   }
 }
 
