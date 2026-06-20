@@ -800,7 +800,7 @@ async function generate(){
     ?(document.getElementById('custom-theme').value.trim()||'illustrative art')
     :THEMES[selTheme];
 
-  let step=0; const tot=totalP+2;
+  let step=0; const tot=totalP+3;
   const log=(msg,type='')=>{
     step++;
     document.getElementById('pbar').style.width=Math.min(Math.round(step/tot*100),97)+'%';
@@ -812,32 +812,28 @@ async function generate(){
   };
 
   try{
-    // ── 1. Generate text + image plan ──
-    log('Generazione testo e illustrazioni...');
-    const prompt=`Sei un autore e art director di libri illustrati per bambini.
+    // ── 1. Generate story text (NO image prompts yet) ──
+    log('Generazione testo della storia...');
+    const storyPrompt=`Sei un autore di libri illustrati per bambini.
 Trama: "${plot}"
-Tema visivo: ${themeStyle}
-Colore dominante: ${selColor}
 Pagine totali: ${totalP} (inclusa copertina)
 Lingua: ${lang}
 
 Regole IMPORTANTI:
-- Pagina 1 = copertina (type:"cover", ha sempre imgPrompt)
-- OGNI pagina di testo deve avere la sua illustrazione (imgPrompt) — coerente col testo di quella pagina
-- L'ultima pagina è una pagina di chiusura con immagine (type:"image")
-- Per ogni imgPrompt: descrizione dettagliata in inglese, stile "${themeStyle}", colore dominante ${selColor}
-- Testo massimo 60 parole per pagina, semplice e adatto ai bambini
-- I prompt immagine devono descrivere ESATTAMENTE la scena del testo di quella pagina
+- Pagina 1 = copertina (type:"cover", con title e subtitle)
+- Le pagine intermedie sono type:"image", con title (titolo capitolo breve) e text (testo pagina)
+- L'ultima pagina è una pagina di chiusura, type:"image"
+- Testo massimo 60 parole per pagina, semplice e adatto ai bambini, con una storia coerente dall'inizio alla fine
 
 RISPONDI SOLO con JSON valido, nient'altro:
 [
-  {"type":"cover","title":"${title}","subtitle":"sottotitolo breve","imgPrompt":"professional children book cover illustration, ${themeStyle}, ${selColor} dominant color..."},
-  {"type":"image","title":"Titolo capitolo","text":"Testo pagina...","imgPrompt":"scene illustration exactly matching this text, ${themeStyle}..."},
-  ...ultima pagina...
-  {"type":"image","title":"Fine","text":"Testo conclusivo...","imgPrompt":"closing scene illustration, ${themeStyle}..."}
+  {"type":"cover","title":"${title}","subtitle":"sottotitolo breve"},
+  {"type":"image","title":"Titolo capitolo","text":"Testo pagina..."},
+  ...altre pagine...
+  {"type":"image","title":"Fine","text":"Testo conclusivo..."}
 ]`;
 
-    const raw=await callText(prompt);
+    const raw=await callText(storyPrompt);
     let pages=null;
     try{
       const direct=JSON.parse(raw.replace(/```json\n?|```/g,'').trim());
@@ -855,9 +851,56 @@ RISPONDI SOLO con JSON valido, nient'altro:
       if(m){ try{ pages=JSON.parse(m[0]); }catch(e2){} }
     }
     if(!Array.isArray(pages)||pages.length<2) throw new Error('Risposta non valida — riprova');
-    log(pages.length+' pagine · '+pages.filter(p=>p.imgPrompt).length+' illustrazioni','ok');
+    log(pages.length+' pagine generate','ok');
 
-    // ── 2. Build pages structure ──
+    // ── 2. Generate image prompts — based on the FINAL text, for full coherence ──
+    log('Costruzione illustrazioni coerenti col testo...');
+    const imgPlanPrompt=`Sei un art director di libri illustrati per bambini.
+Tema visivo: ${themeStyle}
+Colore dominante: ${selColor}
+
+Di seguito il testo DEFINITIVO di ogni pagina di un libro illustrato. Per OGNI pagina scrivi un prompt per un generatore di immagini AI, in INGLESE, che illustri ESATTAMENTE la scena descritta da quel testo — stessi personaggi, stessa azione, stessa ambientazione. Non inventare elementi assenti dal testo. Stile sempre "${themeStyle}", colore dominante ${selColor}.
+
+REGOLA FONDAMENTALE: i prompt NON devono mai chiedere testo, titoli, scritte, numeri, loghi o watermark visibili nell'immagine (nemmeno per la copertina) — il titolo del libro viene aggiunto separatamente dall'app come testo vero, non va disegnato dal modello. Descrivi solo la scena visiva (personaggi, ambientazione, azione, atmosfera), mai "with the title written" o simili.
+
+Pagine:
+${JSON.stringify(pages.map((p,i)=>({index:i,type:p.type,content:p.type==='cover'?(p.title+' — '+(p.subtitle||'')):(p.text||'')})))}
+
+RISPONDI SOLO con un array JSON, stesso ordine, stessa lunghezza, nient'altro:
+[{"index":0,"imgPrompt":"professional children book cover illustration scene (no text/title in image): ..."}, {"index":1,"imgPrompt":"scene illustration matching exactly: ..."}, ...]`;
+
+    const rawImg=await callText(imgPlanPrompt);
+    let imgPlan=null;
+    try{
+      const direct=JSON.parse(rawImg.replace(/```json\n?|```/g,'').trim());
+      if(Array.isArray(direct)) imgPlan=direct;
+      else if(direct&&typeof direct==='object'){
+        const arr=Object.values(direct).find(v=>Array.isArray(v));
+        if(arr) imgPlan=arr;
+      }
+    }catch(e){}
+    if(!imgPlan){
+      const m=rawImg.match(/\[[\s\S]*\]/);
+      if(m){ try{ imgPlan=JSON.parse(m[0]); }catch(e2){} }
+    }
+    // Merge: associa ogni imgPrompt alla pagina corrispondente per indice
+    if(Array.isArray(imgPlan)){
+      imgPlan.forEach(ip=>{
+        const idx=typeof ip.index==='number'?ip.index:-1;
+        if(idx>=0&&idx<pages.length&&ip.imgPrompt) pages[idx].imgPrompt=ip.imgPrompt;
+      });
+    }
+    // Fallback per pagine rimaste senza imgPrompt (es. risposta AI incompleta):
+    // costruiamo un prompt direttamente dal testo della pagina, meglio di niente
+    pages.forEach(p=>{
+      if(!p.imgPrompt){
+        const base=p.type==='cover'?(p.title+', '+(p.subtitle||'')):(p.text||p.title||'');
+        p.imgPrompt=`children's book illustration, ${themeStyle}, ${selColor} dominant color, scene depicting: ${base}`;
+      }
+    });
+    log('Illustrazioni pianificate','ok');
+
+    // ── 3. Build pages structure ──
     genPages=pages.map((p,i)=>({
       ...p,
       imgUrl:null,
@@ -868,7 +911,7 @@ RISPONDI SOLO con JSON valido, nient'altro:
       genPages.length+' pagine · '+(mode==='free'?'Puter.js':mode==='local'?'Locale (Ollama+SD)':tProv+'+'+iProv);
     log('Testo pronto! Generazione immagini...','ok');
 
-    // ── 3. Generate images ──
+    // ── 4. Generate images ──
     for(let i=0;i<genPages.length;i++){
       const page=genPages[i];
       if(!page.imgPrompt) continue;
@@ -1016,19 +1059,27 @@ async function callLocalImg(prompt){
 }
 
 // ── IMAGE API ─────────────────────────────────────────────
+// I modelli text-to-image tendono ad "allucinare" testo finto e illeggibile
+// nelle immagini (titoli sgangherati, codici tipo #000389, watermark fasulli).
+// Questo vincolo viene applicato a TUTTI i provider per ridurre il fenomeno —
+// titolo e watermark reali vengono comunque aggiunti separatamente dall'app.
+const NO_TEXT_SUFFIX=', no text, no title, no letters, no numbers, no captions, no watermark, no logo, no signature, no writing of any kind, illustration only';
+const NO_TEXT_NEGATIVE='text, title, letters, numbers, captions, watermark, logo, signature, writing, words';
+
 async function callImage(prompt){
-  if(mode==='free') return callPuterImg(prompt);
-  if(mode==='local') return callLocalImg(prompt);
+  const p=prompt+NO_TEXT_SUFFIX;
+  if(mode==='free') return callPuterImg(p);
+  if(mode==='local') return callLocalImg(p);
   const k=getKeys();
-  if(iProv==='together') return callTogether(k.together,prompt);
-  if(iProv==='stability') return callStability(k.stability,prompt);
-  if(iProv==='dalle') return callDalle(k.openai,prompt);
+  if(iProv==='together') return callTogether(k.together,p);
+  if(iProv==='stability') return callStability(k.stability,p);
+  if(iProv==='dalle') return callDalle(k.openai,p);
 }
 
 async function callPuterImg(prompt){
   const model=document.getElementById('puter-img').value;
   const tryM=async(m)=>{
-    const resp=await puter.ai.txt2img(prompt,{model:m});
+    const resp=await puter.ai.txt2img(prompt,{model:m,negative_prompt:NO_TEXT_NEGATIVE});
     if(resp instanceof HTMLImageElement){
       try{ return await imgElToB64(resp); }catch{ return resp.src; }
     }
@@ -1140,7 +1191,7 @@ async function callTogether(k,p){
     try{
       const r=await fetch('https://api.together.xyz/v1/images/generations',{method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
-        body:JSON.stringify({model:models[mi],prompt:p.slice(0,1000),width:1024,height:1024,steps:4,n:1})});
+        body:JSON.stringify({model:models[mi],prompt:p.slice(0,1000),width:1024,height:1024,steps:4,n:1,response_format:'base64'})});
       if(r.ok){
         const j=await r.json();
         // b64_json — already base64, use directly
@@ -1179,6 +1230,7 @@ async function callTogether(k,p){
 }
 async function callStability(k,p){
   const f=new FormData(); f.append('prompt',p.slice(0,2000)); f.append('output_format','jpeg');
+  f.append('negative_prompt',NO_TEXT_NEGATIVE);
   const r=await fetch('https://api.stability.ai/v2beta/stable-image/generate/core',
     {method:'POST',headers:{'Authorization':'Bearer '+k,'Accept':'application/json'},body:f});
   if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.message||'Stability '+r.status);}
@@ -1187,11 +1239,14 @@ async function callStability(k,p){
 async function callDalle(k,p){
   const r=await fetch('https://api.openai.com/v1/images/generations',{method:'POST',
     headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},
-    body:JSON.stringify({model:'dall-e-3',prompt:p.slice(0,4000),n:1,size:'1024x1024',quality:'standard'})});
+    body:JSON.stringify({model:'dall-e-3',prompt:p.slice(0,4000),n:1,size:'1024x1024',quality:'standard',response_format:'b64_json'})});
   if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error?.message||'DALL-E '+r.status);}
-  const imgUrl=(await r.json()).data?.[0]?.url||null;
+  const data=(await r.json()).data?.[0];
+  // b64_json — already base64, use directly (no CORS risk)
+  if(data?.b64_json) return 'data:image/png;base64,'+data.b64_json;
+  const imgUrl=data?.url||null;
   if(!imgUrl) return null;
-  // Immediately fetch as blob to avoid CORS issues in PDF export
+  // Fallback se il provider non ha onorato response_format: prova comunque a scaricare come blob
   try{
     const ir=await fetch(imgUrl);
     if(ir.ok){
