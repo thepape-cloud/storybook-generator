@@ -789,17 +789,19 @@ Pagine totali: ${totalP} (inclusa copertina)
 Lingua: ${lang}
 
 Regole IMPORTANTI:
-- Pagina 1 = copertina (type:"cover", con title e subtitle)
-- Le pagine intermedie sono type:"image", con title (titolo capitolo breve) e text (testo pagina)
-- L'ultima pagina è una pagina di chiusura, type:"image"
-- Testo massimo 60 parole per pagina, semplice e adatto ai bambini, con una storia coerente dall'inizio alla fine
+- Pagina 1 = copertina (type:"cover", con title e subtitle evocativo)
+- Le pagine intermedie sono type:"image", con title (titolo capitolo breve e poetico) e text (testo pagina)
+- L'ultima pagina è la pagina di chiusura, type:"image", con un testo conclusivo caldo e soddisfacente
+- Testo: minimo 30 parole, massimo 70 parole per pagina. Usa frasi complete e narrative, non telegrafiche. Descrivi emozioni, sensazioni, dialoghi brevi — non limitarti a riassumere l'azione
+- La storia deve avere un arco narrativo completo: introduzione del personaggio, problema, sviluppo, risoluzione, morale
+- Ogni pagina deve far avanzare la storia in modo coinvolgente per un bambino
 
 RISPONDI SOLO con JSON valido, nient'altro:
 [
-  {"type":"cover","title":"${title}","subtitle":"sottotitolo breve"},
-  {"type":"image","title":"Titolo capitolo","text":"Testo pagina..."},
+  {"type":"cover","title":"${title}","subtitle":"sottotitolo evocativo"},
+  {"type":"image","title":"Titolo capitolo","text":"Testo narrativo completo di almeno 30 parole..."},
   ...altre pagine...
-  {"type":"image","title":"Fine","text":"Testo conclusivo..."}
+  {"type":"image","title":"Fine","text":"Testo conclusivo caldo e completo..."}
 ]`;
 
     const raw=await callText(storyPrompt);
@@ -1086,10 +1088,12 @@ async function urlToBase64(url){
 }
 
 async function callTogether(k,p){
+  // Solo modelli FLUX — SDXL-base e SD v1.5 producono risultati astratti e inutilizzabili
+  // come libri illustrati per bambini. Se tutti falliscono, l'errore è esplicito.
   const models=[
-    'black-forest-labs/FLUX.1-schnell',
-    'stabilityai/stable-diffusion-xl-base-1.0',
-    'runwayml/stable-diffusion-v1-5'
+    'black-forest-labs/FLUX.1-schnell-Free', // piano free Together, quota generosa
+    'black-forest-labs/FLUX.1-schnell',       // piano pay-as-you-go
+    'black-forest-labs/FLUX.1-dev',           // qualità superiore, stesso family
   ];
   for(var mi=0;mi<models.length;mi++){
     try{
