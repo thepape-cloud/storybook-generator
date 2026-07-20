@@ -178,7 +178,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <div class="mode-toggle">
       <button class="mode-btn active" id="btn-free" onclick="setMode('free')">✨ Free</button>
       <button class="mode-btn" id="btn-pro" onclick="setMode('pro')">⚡ Pro</button>
-      <button class="mode-btn" id="btn-local" onclick="setMode('local')">🖥️ Locale</button>
     </div>
   </div>
 </header>
@@ -223,28 +222,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
     <div style="margin-top:6px;font-size:11px;color:var(--muted);line-height:1.5">
       Se finisci i crediti gratuiti, usa "Cambia account" per accedere con un secondo account Puter.
     </div>
-  </div>
-
-  <!-- LOCAL MODE -->
-  <div id="sec-local" style="display:none">
-    <div class="sec">🖥️ Modalità Locale — Ollama + Stable Diffusion</div>
-    <div style="margin-top:8px;background:rgba(123,97,255,0.08);border:1px solid rgba(123,97,255,0.25);border-radius:10px;padding:10px;font-size:12px;color:#7b61ff;line-height:1.65">
-      <strong>100% offline, zero costi, nessun limite!</strong><br>
-      Richiede <code>start.bat</code> in esecuzione (solo Windows).<br>
-      GPU rilevata in automatico: modelli leggeri o pesanti.
-    </div>
-    <div style="margin-top:9px;display:flex;flex-direction:column;gap:6px">
-      <div class="key-card" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-        <div style="font-size:12px;line-height:1.5"><strong>Testo</strong> — Ollama<br><span id="local-txt-model" style="color:var(--muted);font-size:11px">non verificato</span></div>
-        <div class="key-dot" id="kd-local-txt"></div>
-      </div>
-      <div class="key-card" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-        <div style="font-size:12px;line-height:1.5"><strong>Immagini</strong> — Stable Diffusion<br><span id="local-img-model" style="color:var(--muted);font-size:11px">non verificato</span></div>
-        <div class="key-dot" id="kd-local-img"></div>
-      </div>
-    </div>
-    <button class="btn btn-o" style="width:100%;margin-top:9px;font-size:12px" onclick="checkLocalStatus()">🔄 Verifica connessione</button>
-    <div id="local-status-msg" style="margin-top:7px;font-size:11px;color:var(--muted);line-height:1.6"></div>
   </div>
 
   <!-- PRO MODE: TEXT -->
@@ -574,8 +551,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 <script>
 // ── STATE ────────────────────────────────────────────────
 let mode='free', tProv='groq', iProv='together';
-const LOCAL_OLLAMA_URL='http://localhost:11434';
-const LOCAL_IMG_URL='http://localhost:8189';
 let selTheme='bimbi', selColor='#ffb347', selTextColor='#1a1a1a';
 let selLayout='auto', selBg='white', selFrame='none';
 let selFontSize='medium', selFontStyle='sans';
@@ -713,13 +688,10 @@ function setMode(m){
   mode=m;
   document.getElementById('btn-free').className='mode-btn'+(m==='free'?' active':'');
   document.getElementById('btn-pro').className='mode-btn'+(m==='pro'?' active':'');
-  document.getElementById('btn-local').className='mode-btn'+(m==='local'?' active':'');
   document.getElementById('sec-free').style.display=m==='free'?'block':'none';
-  document.getElementById('sec-local').style.display=m==='local'?'block':'none';
   document.getElementById('sec-pro-txt').style.display=m==='pro'?'block':'none';
   document.getElementById('sec-pro-img').style.display=m==='pro'?'block':'none';
   if(m==='free') updatePuterAccountStatus();
-  if(m==='local') checkLocalStatus();
 }
 
 function swT(p,btn){
@@ -775,9 +747,6 @@ async function generate(){
     if(typeof puter==='undefined'||!puter.ai){
       showToast('Puter.js non ancora pronto — aspetta ✅'); return;
     }
-  } else if(mode==='local'){
-    try{ await fetch(LOCAL_OLLAMA_URL+'/api/tags'); }
-    catch(e){ showToast('Server locale non trovato — avvia start.bat'); return; }
   } else {
     const keys=getKeys();
     if(tProv==='groq'&&!keys.groq){showToast('Inserisci chiave Groq'); return;}
@@ -908,7 +877,7 @@ RISPONDI SOLO con un array JSON, stesso ordine, stessa lunghezza, nient'altro:
     }));
     renderPreview(genPages);
     document.getElementById('prev-info').textContent=
-      genPages.length+' pagine · '+(mode==='free'?'Puter.js':mode==='local'?'Locale (Ollama+SD)':tProv+'+'+iProv);
+      genPages.length+' pagine · '+(mode==='free'?'Puter.js':tProv+'+'+iProv);
     log('Testo pronto! Generazione immagini...','ok');
 
     // ── 4. Generate images ──
@@ -968,7 +937,6 @@ async function callText(prompt){
     if(typeof resp==='string') return resp;
     return resp?.message?.content||resp?.text||resp?.content?.[0]?.text||'';
   }
-  if(mode==='local') return callOllama(prompt);
   const k=getKeys();
   if(tProv==='groq') return callGroq(k.groq,prompt);
   if(tProv==='gemini') return callGemini(k.gemini,prompt);
@@ -997,79 +965,15 @@ async function callClaude(k,p){
   return (await r.json()).content?.[0]?.text||'';
 }
 
-// ── LOCAL (Ollama + Stable Diffusion via start.bat) ───────
-let _localTextModel=null;
-
-async function checkLocalStatus(){
-  const dotTxt=document.getElementById('kd-local-txt');
-  const dotImg=document.getElementById('kd-local-img');
-  const txtModelEl=document.getElementById('local-txt-model');
-  const imgModelEl=document.getElementById('local-img-model');
-  const msg=document.getElementById('local-status-msg');
-  if(!dotTxt) return; // pannello non presente nel DOM
-  msg.textContent='Verifica in corso...';
-
-  // Ollama
-  let txtOk=false;
-  try{
-    const r=await fetch(LOCAL_OLLAMA_URL+'/api/tags');
-    if(!r.ok) throw new Error();
-    const j=await r.json();
-    const names=(j.models||[]).map(m=>m.name);
-    _localTextModel=names.find(n=>n.startsWith('llama3.1'))||names.find(n=>n.startsWith('llama3.2'))||names[0]||null;
-    txtModelEl.textContent=_localTextModel?'('+_localTextModel+')':'nessun modello scaricato';
-    txtOk=true;
-  }catch(e){ txtModelEl.textContent='non raggiunto'; }
-  dotTxt.className='key-dot'+(txtOk?' ok':'');
-
-  // Image server
-  let imgOk=false;
-  try{
-    const r=await fetch(LOCAL_IMG_URL+'/health');
-    if(!r.ok) throw new Error();
-    const j=await r.json();
-    imgModelEl.textContent='('+j.tier+' · '+(j.device||'').toUpperCase()+')';
-    imgOk=true;
-  }catch(e){ imgModelEl.textContent='non raggiunto'; }
-  dotImg.className='key-dot'+(imgOk?' ok':'');
-
-  if(txtOk&&imgOk) msg.textContent='✓ Tutto pronto — testo e immagini locali attivi.';
-  else if(txtOk) msg.textContent='✓ Testo locale attivo. Server immagini non raggiunto (richiede Python — vedi start.bat).';
-  else msg.textContent='⚠️ Server locale non raggiunto. Esegui start.bat e riprova.';
-}
-
-async function callOllama(prompt){
-  if(!_localTextModel) await checkLocalStatus();
-  const model=_localTextModel||'llama3.2:3b';
-  const r=await fetch(LOCAL_OLLAMA_URL+'/api/chat',{method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model,messages:[{role:'user',content:prompt}],stream:false})});
-  if(!r.ok) throw new Error('Ollama non risponde — controlla start.bat');
-  const j=await r.json();
-  return j.message?.content||'';
-}
-
-async function callLocalImg(prompt){
-  const r=await fetch(LOCAL_IMG_URL+'/generate',{method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({prompt})});
-  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e?.error||'Server immagini locale non risponde');}
-  const j=await r.json();
-  return j.image;
-}
-
 // ── IMAGE API ─────────────────────────────────────────────
 // I modelli text-to-image tendono ad "allucinare" testo finto e illeggibile
-// nelle immagini (titoli sgangherati, codici tipo #000389, watermark fasulli).
-// Questo vincolo viene applicato a TUTTI i provider per ridurre il fenomeno —
-// titolo e watermark reali vengono comunque aggiunti separatamente dall'app.
+// nelle immagini. Questo vincolo viene applicato a TUTTI i provider.
 const NO_TEXT_SUFFIX=', no text, no title, no letters, no numbers, no captions, no watermark, no logo, no signature, no writing of any kind, illustration only';
 const NO_TEXT_NEGATIVE='text, title, letters, numbers, captions, watermark, logo, signature, writing, words';
 
 async function callImage(prompt){
   const p=prompt+NO_TEXT_SUFFIX;
   if(mode==='free') return callPuterImg(p);
-  if(mode==='local') return callLocalImg(p);
   const k=getKeys();
   if(iProv==='together') return callTogether(k.together,p);
   if(iProv==='stability') return callStability(k.stability,p);
